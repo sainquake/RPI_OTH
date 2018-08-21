@@ -31,10 +31,11 @@ ser.baudrate = 115200                     #Set baud rate to 9600
 
 i=0
 while True:
-    #ser.write("Hel") 
-	values = bytearray([0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+    #ser.write("Hel")
+	# address0 address1 data0 data1 
+	values = bytearray([1, 0, 3, 4])
 	ser.write(values)
-	time.sleep(0.1)
+	time.sleep(0.5)
 	GPIO.output(4,False)
 	GPIO.output(27,False)
 	GPIO.output(6,False)
