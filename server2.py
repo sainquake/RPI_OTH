@@ -27,6 +27,9 @@ GPIO.output(6, True)
 
 PORT_NUMBER = 8080
 
+ser = serial.Serial ("/dev/ttyAMA0")    #Open named port 
+ser.baudrate = 115200                     #Set baud rate to 9600
+
 #This class will handles any incoming request from
 #the browser 
 class myHandler(BaseHTTPRequestHandler):
@@ -56,6 +59,8 @@ class myHandler(BaseHTTPRequestHandler):
 			time.sleep(0.5)
 			GPIO.output(6,False)
 		return
+		if self.path=="/blinkstm":
+			ser.write("Hel")
 
 try:
 	#Create a web server and define the handler to manage the
