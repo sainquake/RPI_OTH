@@ -58,9 +58,9 @@ class myHandler(BaseHTTPRequestHandler):
 			GPIO.output(6,True)
 			time.sleep(0.5)
 			GPIO.output(6,False)
-		return
 		if self.path=="/blinkstm":
 			ser.write("Hel")
+		return
 
 try:
 	#Create a web server and define the handler to manage the
