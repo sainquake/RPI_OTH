@@ -28,32 +28,12 @@ ser.baudrate = 115200                     #Set baud rate to 9600
 #ser.write(data)                         #Send back the received data
 #ser.close() 
 
-#time.sleep(1)
-#GPIO.setup([10,11,8], GPIO.IN)
-#GPIO.output([10,11,8], False)
-#time.sleep(2)
-#GPIO.setup([10,11,8], GPIO.OUT)
-#GPIO.output([10,11,8], True)
-#time.sleep(2)
-#GPIO.cleanup([10,11,8])
-#time.sleep(2)
-
-#spi = spidev.SpiDev()
-#spi.open(0, 0)
-#spi.max_speed_hz = 1560000
-#spi.max_speed_hz = 976000
-
-# Split an integer input into a two byte array to send via SPI
-#def write_pot(input):
-#        hsb = input >> 16 & 0xFF
-#        msb = input >> 8 & 0xFF
-#        lsb = input & 0xFF
-#        spi.xfer([hsb, msb, lsb])
 
 i=0
-# SEND SPI
 while True:
-        ser.write("Hel") 
+    #ser.write("Hel") 
+	values = bytearray([0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+	ser.write(values)
 	time.sleep(0.1)
 	GPIO.output(4,False)
 	GPIO.output(27,False)
