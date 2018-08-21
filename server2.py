@@ -40,7 +40,7 @@ class myHandler(BaseHTTPRequestHandler):
 		self.wfile.write("Hello World !")
 		self.wfile.write("<p>You accessed path: %s</p>" % self.path)
 		#do blink
-		if self.path=="/blink"
+		if self.path=="/blink":
 			time.sleep(0.1)
 			GPIO.output(4,False)
 			GPIO.output(27,False)
