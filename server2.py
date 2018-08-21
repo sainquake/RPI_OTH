@@ -58,7 +58,6 @@ class myHandler(BaseHTTPRequestHandler):
 			GPIO.output(6,True)
 			time.sleep(0.5)
 			GPIO.output(6,False)
-		if self.path=="/blinkstm":
 			ser.write("Hel")
 			time.sleep(0.1)
 		return
