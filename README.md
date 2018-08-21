@@ -7,3 +7,6 @@ spi
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get dist-upgrade -y
+
+# AUTORUN
+* sudo nano /etc/rc.local
