@@ -24,6 +24,7 @@ GPIO.output(6, True)
 
 ser = serial.Serial ("/dev/ttyAMA0")    #Open named port 
 ser.baudrate = 115200                     #Set baud rate to 9600
+ser.timeout = 1
 #data = ser.read(10)                     #Read ten characters from serial port to data#
 #ser.write(data)                         #Send back the received data
 #ser.close() 
@@ -33,10 +34,11 @@ i=0
 while True:
     #ser.write("Hel")
 	# address0 address1 data0 data1 
-	values = bytearray([1, 0, 3, 4])
+	values = bytearray([1, 1, 3, 4])
 	ser.write(values)
+	time.sleep(0.1)
 	data = ser.read(4)
-	print 'data=' , data
+	print 'data=' , ":".join("{:02x}".format(ord(c)) for c in data)
 	time.sleep(0.5)
 	GPIO.output(4,False)
 	GPIO.output(27,False)
