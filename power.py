@@ -35,6 +35,8 @@ while True:
 	# address0 address1 data0 data1 
 	values = bytearray([1, 0, 3, 4])
 	ser.write(values)
+	data = ser.read(4)
+	print 'data=' , data
 	time.sleep(0.5)
 	GPIO.output(4,False)
 	GPIO.output(27,False)
