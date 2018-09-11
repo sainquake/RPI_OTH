@@ -1,3 +1,5 @@
+
+
 #!/usr/bin/env python
 
 import serial
@@ -33,12 +35,17 @@ ser.timeout = 1
 i=0
 while True:
     #ser.write("Hel")
+	#start of request to hardware
 	# address0 address1 data0 data1 
-	values = bytearray([1, 1, 3, 4])
+	values = bytearray([11, 0, 0, 0])
 	ser.write(values)
 	time.sleep(0.1)
 	data = ser.read(4)
 	print 'data=' , ":".join("{:02x}".format(ord(c)) for c in data)
+	#temp = 0
+	#temp = data[2]<<8 + data[3];
+	#print temp
+	#end of request for HardWare
 	time.sleep(0.5)
 	GPIO.output(4,False)
 	GPIO.output(27,False)
