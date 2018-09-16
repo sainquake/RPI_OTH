@@ -27,7 +27,7 @@ class OpenThermHat:
 		GPIO.setup(6, GPIO.OUT)
 		GPIO.output(6, True)
 		
-		self.ser = serial.Serial ("/dev/ttyAMA0")    #Open named port
+		self.ser = serial.Serial ("/dev/serial0") #"/dev/ttyAMA0")    #Open named port
 		self.ser.baudrate = 115200                     #Set baud rate to 9600
 		self.ser.timeout = 1
 	def sendReceive(self,ad0,ad1,data0,data1):
@@ -46,7 +46,15 @@ class OpenThermHat:
 	def getADC(self,ch):
 		d = self.sendReceive(6,ch,0,0)
 		return (d>>16)/256.0
-
+	def getBoilerID(self):
+		d = self.sendReceive(3,0,0,0)
+		return d>>16
+	def getOpenTermStatus(self,subaddress):
+		d = self.sendReceive(7,subaddress,0,0)
+		return d>>16
+	def getMem(self,address):
+		d = self.sendReceive(8,address,0,0)
+		return d>>16
 oth = OpenThermHat()
 while True:
 	oth.sendReceive(1,0,0,4)
@@ -57,3 +65,8 @@ while True:
 	time.sleep(0.5)	
 	print ("USB Voltage=\t"+str(oth.getADC(6)))
 	time.sleep(0.5)
+	print("BoilerID=\t"+str(oth.getBoilerID()))
+	time.sleep(0.5)
+	print("BoilerSwitchedOff=\t"+str(oth.getOpenTermStatus(0)))
+	time.sleep(0.5)
+	print("hardware id=\t"+str(oth.getMem(0)))
