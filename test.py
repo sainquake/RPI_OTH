@@ -1,10 +1,20 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import OpenThermHat
 import time
 
 oth = OpenThermHat()
-oth.init()
 while True:
-    oth.sendReceive(1,1,1,1)
-    time.sleep(0.5)
+	oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,0,4)
+	time.sleep(0.5)
+	oth.setTemp(52)
+	time.sleep(0.5)	
+	print("indorTemp=\t"+str(oth.getTemp()))
+	time.sleep(0.5)	
+	print ("USB Voltage=\t"+str(oth.getADC(6)))
+	time.sleep(0.5)
+	print("BoilerID=\t"+str(oth.getBoilerID()))
+	time.sleep(0.5)
+	print("BoilerSwitchedOff=\t"+str(oth.getOpenTermStatus(0)))
+	time.sleep(0.5)
+	print("hardware id=\t"+str(oth.getMem(0)))
