@@ -74,3 +74,6 @@ class OpenThermHat:
 	def getMem(self,address):
 		d = self.sendReceive(self.RPI_MEM_UART_ADDRESS,address,0,0)
 		return d>>16
+	def getGSM(self,address):
+		d = self.sendReceive(self.RPi_SIM800L_UART_ADDRESS,address,0,0)
+		return d>>16
