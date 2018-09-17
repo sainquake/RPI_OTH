@@ -18,3 +18,5 @@ while True:
 	print("BoilerSwitchedOff=\t"+str(oth.getOpenTermStatus(0)))
 	time.sleep(0.5)
 	print("hardware id=\t"+str(oth.getMem(0)))
+	time.sleep(0.5)
+	print("GSM module enabled=\t"+str(getGSM(0)))
