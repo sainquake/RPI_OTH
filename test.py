@@ -22,3 +22,10 @@ while True:
 	print("GSM module (AT) enabled=\t"+str(oth.getGSM(0)))
 	time.sleep(0.5)
 	print("GSM module (AT+CPIN) SIM inserted=\t"+str(oth.getGSM(9)))
+	time.sleep(0.5)
+	print("GSM module (AT+CSQ) network quality (>10 is good)=\t"+str(oth.getGSM(21)))
+	time.sleep(0.5)
+	print("GSM module (AT+CBC) battery voltage(mV)=\t"+str(oth.getGSM(23)))
+	time.sleep(0.5)
+	print("GSM operator:"+str(oth.getOperator()))
+
