@@ -19,4 +19,6 @@ while True:
 	time.sleep(0.5)
 	print("hardware id=\t"+str(oth.getMem(0)))
 	time.sleep(0.5)
-	print("GSM module enabled=\t"+str(oth.getGSM(0)))
+	print("GSM module (AT) enabled=\t"+str(oth.getGSM(0)))
+	time.sleep(0.5)
+	print("GSM module (AT+CPIN) SIM inserted=\t"+str(oth.getGSM(9)))
