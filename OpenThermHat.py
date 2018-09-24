@@ -7,7 +7,7 @@ import time
 
 print("OTH")
 class OpenThermHat:
-	RPI_BUFFER_SIZE=4
+	RPI_BUFFER_SIZE=5
 	RPi_ECHO_UART_ADDRESS=1
 	RPi_BLINK_UART_ADDRESS=2
 	RPi_OT_UART_ADDRESS=				3
@@ -50,7 +50,7 @@ class OpenThermHat:
 		self.ser.timeout = 2
 	def sendReceive(self,ad0,ad1,data0,data1):
 		# address0 address1 data0 data1
-		values = bytearray([ad0, ad1, data0, data1])
+		values = bytearray([ad0, ad1, data0, data1,(ad0+ad1+data0+data1)&0xFF])
 		self.ser.write(values)
 		time.sleep(0.1)
 		data = self.ser.read(self.RPI_BUFFER_SIZE)
@@ -63,6 +63,14 @@ class OpenThermHat:
 			GPIO.output(self.POWER, True)
 			print("RESET")
 		print('data=' , ":".join("{:02x}".format(c) for c in data))
+		if int.from_bytes(data, byteorder='little')&0xFF==255:
+			print("CRC ERROR")
+			self.ser.flushInput()
+			return None
+		if int.from_bytes(data, byteorder='little')&0xFF!=ad0:
+			print("SEND ADDR!=RECEIVED ADDR")
+			self.ser.flushInput()
+			return None
 		return int.from_bytes(data, byteorder='little')
 	def ledControl(self,pin,state):
 		GPIO.output(pin, state)
@@ -70,30 +78,30 @@ class OpenThermHat:
 		return self.sendReceive(self.RPi_SET_TEMP_UART_ADDRESS,0,0,temp)
 	def getTemp(self):
 		d = self.sendReceive(self.RPi_GET_HW_TEMP_UART_ADDRESS,0,0,0)
-		return	(d>>16)/256.0
+		return	((d>>16)&0xFFFF)/256.0
 	def getADC(self,ch):
 		d = self.sendReceive(self.RPi_ADC_UART_ADDRESS,ch,0,0)
-		return (d>>16)/256.0
+		return ((d>>16)&0xFFFF)/256.0
 	def getBoilerID(self):
 		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,0,0,0)
-		return d>>16
+		return (d>>16)&0xFFFF
 	def getOpenTermStatus(self,subaddress):
 		d = self.sendReceive(self.RPi_OT_STATUS_UART_ADDRESS,subaddress,0,0)
-		return d>>16
+		return (d>>16)&0xFFFF
 	def getMem(self,address):
 		d = self.sendReceive(self.RPI_MEM_UART_ADDRESS,address,0,0)
-		return d>>16
+		return (d>>16)&0xFFFF
 	def getGSM(self,address):
 		d = self.sendReceive(self.RPi_SIM800L_UART_ADDRESS,address,0,0)
-		return d>>16
+		return (d>>16)&0xFFFF
 	def getOperator(self):
 		#d = self.sendReceive(self.RPi_SIM800L_UART_ADDRESS,7,0,0)
 		#return d>>16
-		self.ser.flushOutput()
-		values = bytearray([self.RPi_SIM800L_UART_ADDRESS,7,0,0])
+		self.ser.flushInput()
+		values = bytearray([self.RPi_SIM800L_UART_ADDRESS,7,0,0,(self.RPi_SIM800L_UART_ADDRESS+7+0+0)&0xFF])
 		self.ser.write(values)
 		time.sleep(0.3)
 		data = self.ser.readline()
-		self.ser.flushOutput()
+		self.ser.flushInput()
 		#print('data=' , ":".join("{:02x}".format(c) for c in data))
 		return data
