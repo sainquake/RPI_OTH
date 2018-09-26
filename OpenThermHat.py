@@ -91,8 +91,8 @@ class OpenThermHat:
 	def getMem(self,address):
 		d = self.sendReceive(self.RPI_MEM_UART_ADDRESS,address,0,0)
 		return (d>>16)&0xFFFF
-	def getGSM(self,address):
-		d = self.sendReceive(self.RPi_SIM800L_UART_ADDRESS,address,0,0)
+	def getGSM(self,address,d1=0,d2=0):
+		d = self.sendReceive(self.RPi_SIM800L_UART_ADDRESS,address,d1,d2)
 		return (d>>16)&0xFFFF
 	def getOperator(self):
 		#d = self.sendReceive(self.RPi_SIM800L_UART_ADDRESS,7,0,0)
@@ -105,3 +105,13 @@ class OpenThermHat:
 		self.ser.flushInput()
 		#print('data=' , ":".join("{:02x}".format(c) for c in data))
 		return data
+	def getSMS(self):
+		self.ser.flushInput()
+		values = bytearray([self.RPi_SIM800L_UART_ADDRESS,24,0,0,(self.RPi_SIM800L_UART_ADDRESS+24+0+0)&0xFF])
+		self.ser.write(values)
+		time.sleep(0.3)
+		data = self.ser.readlines()
+		self.ser.flushInput()
+		#print('data=' , ":".join("{:02x}".format(c) for c in data))
+		return data
+

@@ -5,7 +5,7 @@ import time
 
 oth = OpenThermHat()
 while True:
-	oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,0,4)
+	oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
 	time.sleep(0.5)
 	oth.setTemp(52)
 	time.sleep(0.5)	
@@ -19,6 +19,8 @@ while True:
 	time.sleep(0.5)
 	print("hardware id=\t"+str(oth.getMem(0)))
 	time.sleep(0.5)
+	print("GSM module off\t"+str(oth.getGSM(255)))
+	time.sleep(0.5)
 	print("GSM module (AT) enabled=\t"+str(oth.getGSM(0)))
 	time.sleep(0.5)
 	print("GSM module (AT+CPIN) SIM inserted=\t"+str(oth.getGSM(9)))
@@ -28,4 +30,14 @@ while True:
 	print("GSM module (AT+CBC) battery voltage(mV)=\t"+str(oth.getGSM(23)))
 	time.sleep(0.5)
 	print("GSM operator:"+str(oth.getOperator()))
+	time.sleep(0.5)
+	#if oth.getGSM(8,2)!=1: #balance received
+	#	time.sleep(0.5)
+	#	print("GSM balance request:"+str(oth.getGSM(8,1)))
+	time.sleep(0.5)
+	print("GSM balance:"+str(oth.getGSM(8)))
+	time.sleep(0.5)
+	print("GSM smsCount:"+str(oth.getGSM(25)))
+	time.sleep(0.5)
+	print("GSM read sms:"+str(oth.getSMS()))
 
