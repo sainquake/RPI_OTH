@@ -33,8 +33,16 @@ class OpenThermHat:
 		# Disable "This channel is already in use" warnings
 		GPIO.setwarnings(False)
 		# Setup MCU POWER UP
-		GPIO.setup(self.POWER, GPIO.OUT)
-		GPIO.output(self.POWER, True)
+		#GPIO.setup(self.POWER, GPIO.OUT)
+		#GPIO.output(self.POWER, True)
+		self.powerOn(True)
+		time.sleep(1)
+		self.reset(False)
+		time.sleep(1)
+		self.reset(True)
+		time.sleep(1)
+#		GPIO.setup(18, GPIO.OUT)
+#		GPIO.output(18, True)
 		#LEDS
 		GPIO.setup(self.RED, GPIO.OUT)
 		GPIO.output(self.RED, True)
@@ -48,6 +56,12 @@ class OpenThermHat:
 		self.ser = serial.Serial ("/dev/serial0") #"/dev/ttyAMA0")    #Open named port
 		self.ser.baudrate = 115200                     #Set baud rate to 9600
 		self.ser.timeout = 2
+	def powerOn(self,b):
+		GPIO.setup(self.POWER, GPIO.OUT)
+		GPIO.output(self.POWER, b)
+	def reset(self,b):
+		GPIO.setup(18, GPIO.OUT)
+		GPIO.output(18, b)
 	def sendReceive(self,ad0,ad1,data0,data1):
 		# address0 address1 data0 data1
 		values = bytearray([ad0, ad1, data0, data1,(ad0+ad1+data0+data1)&0xFF])
