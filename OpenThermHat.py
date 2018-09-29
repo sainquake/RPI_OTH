@@ -39,10 +39,10 @@ class OpenThermHat:
 		#GPIO.output(self.POWER, True)
 		self.powerOn(True)
 		time.sleep(1)
-		self.reset(False)
-		time.sleep(1)
-		self.reset(True)
-		time.sleep(1)
+		#self.reset(False)
+		#time.sleep(1)
+		#self.reset(True)
+		#time.sleep(1)
 #		GPIO.setup(18, GPIO.OUT)
 #		GPIO.output(18, True)
 		#LEDS
@@ -64,6 +64,11 @@ class OpenThermHat:
 	def reset(self,b):
 		GPIO.setup(18, GPIO.OUT)
 		GPIO.output(18, b)
+	def resetMCU(self):
+		self.reset(False)
+		time.sleep(1)
+		self.reset(True)
+		time.sleep(1)
 	def sendReceive(self,ad0,ad1,data0,data1):
 		# address0 address1 data0 data1
 		values = bytearray([ad0, ad1, data0, data1,(ad0+ad1+data0+data1)&0xFF])

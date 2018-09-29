@@ -4,11 +4,13 @@ from OpenThermHat import OpenThermHat
 import time
 
 oth = OpenThermHat()
+oth.resetMCU()
+
 lastSMSNum = 1
 boilerSwitchedOff = 1
 gsmModuleOff = 1
 
-print("fff"+str(None))
+#print("fff"+str(None))
 while True:
 	oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
 	time.sleep(0.5)
