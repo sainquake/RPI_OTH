@@ -80,11 +80,11 @@ class OpenThermHat:
 		if int.from_bytes(data, byteorder='little')&0xFF==255:
 			print("CRC ERROR")
 			self.ser.flushInput()
-			return None
+		#	return None
 		if int.from_bytes(data, byteorder='little')&0xFF!=ad0:
 			print("SEND ADDR!=RECEIVED ADDR")
 			self.ser.flushInput()
-			return None
+		#	return None
 		return int.from_bytes(data, byteorder='little')
 	def ledControl(self,pin,state):
 		GPIO.output(pin, state)
@@ -119,9 +119,9 @@ class OpenThermHat:
 		self.ser.flushInput()
 		#print('data=' , ":".join("{:02x}".format(c) for c in data))
 		return data
-	def getSMS(self):
+	def getSMS(self,num):
 		self.ser.flushInput()
-		values = bytearray([self.RPi_SIM800L_UART_ADDRESS,24,0,0,(self.RPi_SIM800L_UART_ADDRESS+24+0+0)&0xFF])
+		values = bytearray([self.RPi_SIM800L_UART_ADDRESS,24,num,0,(self.RPi_SIM800L_UART_ADDRESS+24+num+0)&0xFF])
 		self.ser.write(values)
 		time.sleep(0.3)
 		data = self.ser.readlines()
