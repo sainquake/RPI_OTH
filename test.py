@@ -7,6 +7,8 @@ oth = OpenThermHat()
 lastSMSNum = 1
 boilerSwitchedOff = 1
 gsmModuleOff = 1
+
+print("fff"+str(None))
 while True:
 	oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
 	time.sleep(0.5)
@@ -47,10 +49,14 @@ while True:
 		print("GSM balance:"+str(oth.getGSM(8)))
 		time.sleep(0.5)
 		lastSMSNum = oth.getGSM(25)
+		if lastSMSNum>60:
+			lastSMSNum=1
 		print("GSM smsCount:"+str(lastSMSNum))
 		time.sleep(0.5)
 		print("GSM set smsToRead")
 		oth.getSMS(lastSMSNum)
 		time.sleep(1)
-		print("GSM read sms:"+str(oth.getSMS(0)))
+		sms = oth.getSMS(0)
+		if len(sms)>3:
+			print("GSM read sms phone number:"+str(sms[0])+"\t text:"+str(sms[1]))
 

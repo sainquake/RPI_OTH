@@ -26,6 +26,8 @@ class OpenThermHat:
 	BLUE=6
 	ser = serial.Serial()
 	timeouts=0
+	crcError = 0
+	addressMatchError = 0
 	def __init__(self):
 		print("init")
 		# Use "logical" pin numbers
@@ -72,41 +74,66 @@ class OpenThermHat:
 			self.timeouts+=1
 		if self.timeouts>5:
 			self.timeouts=0
-			GPIO.output(self.POWER, False)
-			time.sleep(2)
-			GPIO.output(self.POWER, True)
-			print("RESET")
+			#GPIO.output(self.POWER, False)
+			#time.sleep(2)
+			#GPIO.output(self.POWER, True)
+		#	print("RESET")
 		print('data=' , ":".join("{:02x}".format(c) for c in data))
 		if int.from_bytes(data, byteorder='little')&0xFF==255:
-			print("CRC ERROR")
+		#	print("CRC ERROR")
 			self.ser.flushInput()
+			self.ser.flushOutput()
+			crcError = 1
 		#	return None
 		if int.from_bytes(data, byteorder='little')&0xFF!=ad0:
-			print("SEND ADDR!=RECEIVED ADDR")
+		#	print("SEND ADDR!=RECEIVED ADDR")
 			self.ser.flushInput()
+			self.ser.flushOutput()
+			addressMatchError =1
 		#	return None
 		return int.from_bytes(data, byteorder='little')
 	def ledControl(self,pin,state):
 		GPIO.output(pin, state)
 	def setTemp(self,temp):
-		return self.sendReceive(self.RPi_SET_TEMP_UART_ADDRESS,0,0,temp)
+		d = self.sendReceive(self.RPi_SET_TEMP_UART_ADDRESS,0,0,temp)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		return d
 	def getTemp(self):
 		d = self.sendReceive(self.RPi_GET_HW_TEMP_UART_ADDRESS,0,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
 		return	((d>>16)&0xFFFF)/256.0
 	def getADC(self,ch):
 		d = self.sendReceive(self.RPi_ADC_UART_ADDRESS,ch,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
 		return ((d>>16)&0xFFFF)/256.0
 	def getBoilerID(self):
 		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,0,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
 		return (d>>16)&0xFFFF
 	def getOpenTermStatus(self,subaddress):
 		d = self.sendReceive(self.RPi_OT_STATUS_UART_ADDRESS,subaddress,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
 		return (d>>16)&0xFFFF
 	def getMem(self,address):
 		d = self.sendReceive(self.RPI_MEM_UART_ADDRESS,address,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
 		return (d>>16)&0xFFFF
 	def getGSM(self,address,d1=0,d2=0):
 		d = self.sendReceive(self.RPi_SIM800L_UART_ADDRESS,address,d1,d2)
+		if self.addressMatchError>0:
+			return None
 		return (d>>16)&0xFFFF
 	def getOperator(self):
 		#d = self.sendReceive(self.RPi_SIM800L_UART_ADDRESS,7,0,0)
@@ -118,6 +145,7 @@ class OpenThermHat:
 		data = self.ser.readline()
 		self.ser.flushInput()
 		#print('data=' , ":".join("{:02x}".format(c) for c in data))
+		self.addressMatchError=0
 		return data
 	def getSMS(self,num):
 		self.ser.flushInput()
@@ -126,6 +154,7 @@ class OpenThermHat:
 		time.sleep(0.3)
 		data = self.ser.readlines()
 		self.ser.flushInput()
+		self.addressMatchError=0
 		#print('data=' , ":".join("{:02x}".format(c) for c in data))
 		return data
 
