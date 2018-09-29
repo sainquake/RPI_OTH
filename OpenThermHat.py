@@ -78,7 +78,7 @@ class OpenThermHat:
 			#time.sleep(2)
 			#GPIO.output(self.POWER, True)
 		#	print("RESET")
-		print('data=' , ":".join("{:02x}".format(c) for c in data))
+		#print('data=' , ":".join("{:02x}".format(c) for c in data))
 		if int.from_bytes(data, byteorder='little')&0xFF==255:
 		#	print("CRC ERROR")
 			self.ser.flushInput()
