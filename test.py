@@ -12,7 +12,11 @@ gsmModuleOff = 1
 
 #print("fff"+str(None))
 while True:
-	oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
+	echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
+	#if echo[]
+	if (echo>>16)&0xFFFF!=0x0504:
+		oth.resetMCU()
+		print("RESET MCU")
 	time.sleep(0.5)
 	oth.setTemp(52)
 	time.sleep(0.5)	
