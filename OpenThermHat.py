@@ -117,6 +117,13 @@ class OpenThermHat:
 			self.addressMatchError=0
 			return None
 		return ((d>>16)&0xFFFF)/256.0
+	def getBoilerReg(self,address):
+		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,address,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		d = (d>>16)&0xFFFF
+		return d
 	def getBoilerID(self):
 		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,3,0,0)
 		if self.addressMatchError>0:
