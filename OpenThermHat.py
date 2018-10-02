@@ -118,11 +118,13 @@ class OpenThermHat:
 			return None
 		return ((d>>16)&0xFFFF)/256.0
 	def getBoilerID(self):
-		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,0,0,0)
+		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,3,0,0)
 		if self.addressMatchError>0:
 			self.addressMatchError=0
 			return None
-		return (d>>16)&0xFFFF
+		d = (d>>16)&0xFFFF
+		#print("P:"+str(d>>15)+"\tMSG-TYPE:"+str(d>>12))
+		return d
 	def getOpenTermStatus(self,subaddress):
 		d = self.sendReceive(self.RPi_OT_STATUS_UART_ADDRESS,subaddress,0,0)
 		if self.addressMatchError>0:

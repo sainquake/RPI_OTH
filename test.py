@@ -18,7 +18,7 @@ while True:
 		oth.resetMCU()
 		print("RESET MCU")
 	time.sleep(0.5)
-	oth.setTemp(52)
+	print(str(oth.setTemp(52)))
 	time.sleep(0.5)	
 	print("indorTemp=\t"+str(oth.getTemp()))
 	time.sleep(0.5)	
@@ -28,9 +28,9 @@ while True:
 	time.sleep(0.5)
 	boilerSwitchedOff = oth.getOpenTermStatus(0)
 	print("BoilerSwitchedOff=\t"+str(boilerSwitchedOff))
-	if boilerSwitchedOff==0:
-		time.sleep(0.5)
-		print("BoilerID=\t"+str(oth.getBoilerID()))
+#	if boilerSwitchedOff==0:
+	time.sleep(0.5)
+	print("BoilerID=\t"+str(oth.getBoilerID()))
 	time.sleep(0.5)
 	print("hardware id=\t"+str(oth.getMem(0)))
 	time.sleep(0.5)
