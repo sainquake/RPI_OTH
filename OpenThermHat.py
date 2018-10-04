@@ -100,7 +100,8 @@ class OpenThermHat:
 	def ledControl(self,pin,state):
 		GPIO.output(pin, state)
 	def setTemp(self,temp):
-		d = self.sendReceive(self.RPi_SET_TEMP_UART_ADDRESS,0,0,temp)
+		d = self.getBoilerReg((1<<7) +1,temp*256)/256.0
+		#d = self.sendReceive(self.RPi_SET_TEMP_UART_ADDRESS,0,0,temp)
 		if self.addressMatchError>0:
 			self.addressMatchError=0
 			return None
@@ -117,8 +118,8 @@ class OpenThermHat:
 			self.addressMatchError=0
 			return None
 		return ((d>>16)&0xFFFF)/256.0
-	def getBoilerReg(self,address):
-		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,address,0,0)
+	def getBoilerReg(self,address,da=0):
+		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,address,da&0xFF,(da>>8)&0xFF)
 		if self.addressMatchError>0:
 			self.addressMatchError=0
 			return None

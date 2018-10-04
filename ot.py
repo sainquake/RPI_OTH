@@ -10,6 +10,7 @@ lastSMSNum = 1
 boilerSwitchedOff = 1
 gsmModuleOff = 1
 
+comp = 1
 #print("fff"+str(None))
 while True:
 	echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
@@ -27,6 +28,8 @@ while True:
 	print("ot.complete=\t"+str(boilerStatus>>2&1))
 	print("ot.frameSendedAndStartWaitingACK=\t"+str(boilerStatus>>3&1))
 	print("ot.readingResponse=\t"+str(boilerStatus>>4&1))
+	print("ot.specialRequest=\t"+str(boilerStatus>>5&1))
+	print("ot.specialRequestComplete=\t"+str(boilerStatus>>6&1))
 	print(" ")
 	d = oth.getBoilerReg(3)
 #	time.sleep(0.5)
@@ -52,4 +55,21 @@ while True:
 	print("Boiler ID28=\t"+str(oth.getBoilerReg(28)/256.0)+"\t Return water temperature")
 #	time.sleep(0.1)
 	print("Boiler ID116=\t"+str(oth.getBoilerReg(116))+"\t burner starts")
-
+	print("Boiler ID19=\t"+str(oth.getBoilerReg(19))+"\t l/min flow")
+	#requests with waiting for response
+	print("set temp"+ str(oth.setTemp(55)))
+#	print("Boiler ID1=\t"+str(oth.getBoilerReg((1<<7) +1,44*256)/256.0)+"\t set water temp")
+	while not( (oth.getOpenTermStatus(6)>>6)&1 ):
+		time.sleep(0.5)
+	print("set temp"+ str(oth.setTemp(55)))
+#	print("Boiler ID1=\t"+str(oth.getBoilerReg((1<<7) +1,44*256)/256.0)+"\t set water temp")
+	
+#	print("Boiler ID8=\t"+str(oth.getBoilerReg((1<<7) +8,33*256)/256.0)+"\t Control setpoint 2")
+#	while not( (oth.getOpenTermStatus(6)>>6)&1 ):
+#                time.sleep(0.5)
+#	print("Boiler ID8=\t"+str(oth.getBoilerReg((1<<7) +8,33*256)/256.0)+"\t Control setpoint 2")
+	
+#	print("Boiler ID16=\t"+str(oth.getBoilerReg((1<<7) +16,22*256)/256.0)+"\t Room setpoint")
+#	while not( (oth.getOpenTermStatus(6)>>6)&1 ):
+#		time.sleep(0.5)
+#	print("Boiler ID16=\t"+str(oth.getBoilerReg((1<<7) +16,22*256)/256.0)+"\t Room setpoint")
