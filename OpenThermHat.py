@@ -101,7 +101,30 @@ class OpenThermHat:
 		GPIO.output(pin, state)
 	def setTemp(self,temp):
 		d = self.getBoilerReg((1<<7) +1,temp*256)/256.0
-		#d = self.sendReceive(self.RPi_SET_TEMP_UART_ADDRESS,0,0,temp)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		return d
+	def setTempCH2(self,temp):
+		d = self.getBoilerReg((1<<7) +8,temp*256)/256.0
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		return d
+	def setRoomTargetTemp(self,temp):
+		d = self.getBoilerReg((1<<7) +16,temp*256)/256.0
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		return d
+	def setRoomTargetTempCH2(self,temp):
+		d = self.getBoilerReg((1<<7) +23,temp*256)/256.0
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		return d
+	def setRoomTemp(self,temp):
+		d = self.getBoilerReg((1<<7) +24,temp*256)/256.0
 		if self.addressMatchError>0:
 			self.addressMatchError=0
 			return None
@@ -130,7 +153,7 @@ class OpenThermHat:
 		if self.addressMatchError>0:
 			self.addressMatchError=0
 			return None
-			d = (d>>16)&0xFFFF
+		d = (d>>16)&0xFFFF
 		return d
 	def getBoilerID(self):
 		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,3,0,0)
