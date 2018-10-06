@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from http.server import BaseHTTPRequestHandler,HTTPServer
+import shutil
+import sys
 
 PORT_NUMBER = 8080
 
@@ -14,8 +16,11 @@ class myHandler(BaseHTTPRequestHandler):
 		self.send_header('Content-type'.encode(),'text/html'.encode())
 		self.end_headers()
 		# Send the html message
-		self.wfile.write("Hello World !".encode())
-		self.wfile.write(("<p>You accessed path: " +str(self.path)+ "</p>").encode() )
+		#self.wfile.write("Hello World !".encode())
+		#self.wfile.write(("<p>You accessed path: " +str(self.path)+ "</p>").encode() )
+		f = open('html.html', 'r')
+		self.wfile.write( f.read().encode() )
+		f.close()
 		return
 
 try:
