@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+from http.server import BaseHTTPRequestHandler,HTTPServer
 
 PORT_NUMBER = 8080
 
