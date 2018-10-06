@@ -11,7 +11,7 @@ class myHandler(BaseHTTPRequestHandler):
 	#Handler for the GET requests
 	def do_GET(self):
 		self.send_response(200)
-		self.send_header('Content-type','text/html'.encode())
+		self.send_header('Content-type'.encode(),'text/html'.encode())
 		self.end_headers()
 		# Send the html message
 		self.wfile.write("Hello World !".encode())
