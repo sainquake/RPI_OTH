@@ -72,7 +72,7 @@ while True:
 	#requests with waiting for response
 	print("set temp"+ str(oth.setTemp(55)))
 #	print("Boiler ID1=\t"+str(oth.getBoilerReg((1<<7) +1,44*256)/256.0)+"\t set water temp")
-	while not( (oth.getOpenTermStatus(6)>>6)&1 ):
+	while not( oth.otData.specialRequestComplete ):
 		time.sleep(0.5)
 	print("set temp"+ str(oth.setTemp(55)))
 #	print("Boiler ID1=\t"+str(oth.getBoilerReg((1<<7) +1,44*256)/256.0)+"\t set water temp")
