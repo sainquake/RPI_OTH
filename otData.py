@@ -15,6 +15,7 @@ while True:
 	time.sleep(5)
 
 	oth.getOTStatus()
+	print("")
 	print("#otStatus=\t"+str(oth.otStatus))
 	print("ot.timeout=\t"+str(oth.otData.otTimeout))
 	print("ot.index=\t"+str(oth.otData.otIndex))
