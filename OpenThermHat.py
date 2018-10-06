@@ -6,6 +6,73 @@ import RPi.GPIO as GPIO
 import time
 
 print("OTH")
+class OTData:
+	#otStatus
+	otTimeout = 0
+	otIndex = 0
+	otBusy = 0
+	otComplete = 0
+	otFrameSendedAndStartWaitingACK = 0
+	otReadingResponse = 0
+	otSpecialRequest = 0
+	otSpecialRequestComplete = 0
+	#boilerStatus
+	boilerFault = 0
+	boilerCHMode = 0
+	boilerDHWMode = 0
+	boilerFlameStatus = 0
+	boilerCoolingStatus = 0
+	boilerCH2Mode = 0
+	boilerDiagnostic = 0
+	#boilerConfig
+	boilerMemberID = 0
+	boilerDHWPresent = 0
+	boilerControlType = 0
+	boilerCoolingConfig = 0
+	boilerDHWConfig = 0
+	boilerPumpControlFunction = 0
+	boilerCH2Present = 0
+	#errorConfig
+	errorOEM = 0
+	errorServiceRequered = 0
+	errorLockoutReset = 0
+	errorLowWaterPress = 0
+	errorGasFlameFault = 0
+	errorAirPressureFault = 0
+	errorWaterOverTemperature = 0
+	def __init__(self,otStatus,boilerStatus,boilerConfig,errorFlags):
+		otTimeout = otStatus&1
+		otIndex = otStatus>>8&0xFF
+		otBusy = otStatus>>1&1
+		otComplete = otStatus>>2&1
+		otFrameSendedAndStartWaitingACK = otStatus>>3&1
+		otReadingResponse = otStatus>>4&1
+		otSpecialRequest = otStatus>>5&1
+		otSpecialRequestComplete = otStatus>>6&1
+		#boilerStatus
+		boilerFault = boilerStatus&1
+		boilerCHMode = (boilerStatus>>1)&1
+		boilerDHWMode = (boilerStatus>>2)&1
+		boilerFlameStatus = (boilerStatus>>3)&1
+		boilerCoolingStatus = (boilerStatus>>4)&1
+		boilerCH2Mode = (boilerStatus>>5)&1
+		boilerDiagnostic = (boilerStatus>>6)&1
+		#boilerConfig
+		boilerMemberID = boilerConfig&0xFF
+		boilerDHWPresent = (boilerConfig>>8)&1
+		boilerControlType = (boilerConfig>>9)&1
+		boilerCoolingConfig = (boilerConfig>>10)&1
+		boilerDHWConfig = (boilerConfig>>11)&1
+		boilerPumpControlFunction = (boilerConfig>>12)&1
+		boilerCH2Present = (boilerConfig>>13)&1
+		#errorConfig
+		errorOEM = errorFlags&0xFF
+		errorServiceRequered = (errorFlags>>8)&1
+		errorLockoutReset = (errorFlags>>9)&1
+		errorLowWaterPress = (errorFlags>>10)&1
+		errorGasFlameFault = (errorFlags>>11)&1
+		errorAirPressureFault = (errorFlags>>12)&1
+		errorWaterOverTemperature = (errorFlags>>13)&1
 class OpenThermHat:
 	RPI_BUFFER_SIZE=5
 	RPi_ECHO_UART_ADDRESS=1
@@ -210,71 +277,3 @@ class OpenThermHat:
 		self.addressMatchError=0
 		#print('data=' , ":".join("{:02x}".format(c) for c in data))
 		return data
-
-class OTData:
-	#otStatus
-	otTimeout = 0
-	otIndex = 0
-	otBusy = 0
-	otComplete = 0
-	otFrameSendedAndStartWaitingACK = 0
-	otReadingResponse = 0
-	otSpecialRequest = 0
-	otSpecialRequestComplete = 0
-	#boilerStatus
-	boilerFault = 0
-	boilerCHMode = 0
-	boilerDHWMode = 0
-	boilerFlameStatus = 0
-	boilerCoolingStatus = 0
-	boilerCH2Mode = 0
-	boilerDiagnostic = 0
-	#boilerConfig
-	boilerMemberID = 0
-	boilerDHWPresent = 0
-	boilerControlType = 0
-	boilerCoolingConfig = 0
-	boilerDHWConfig = 0
-	boilerPumpControlFunction = 0
-	boilerCH2Present = 0
-	#errorConfig
-	errorOEM = 0
-	errorServiceRequered = 0
-	errorLockoutReset = 0
-	errorLowWaterPress = 0
-	errorGasFlameFault = 0
-	errorAirPressureFault = 0
-	errorWaterOverTemperature = 0
-	def __init__(self,otStatus,boilerStatus,boilerConfig,errorFlags):
-		otTimeout = otStatus&1
-		otIndex = otStatus>>8&0xFF
-		otBusy = otStatus>>1&1
-		otComplete = otStatus>>2&1
-		otFrameSendedAndStartWaitingACK = otStatus>>3&1
-		otReadingResponse = otStatus>>4&1
-		otSpecialRequest = otStatus>>5&1
-		otSpecialRequestComplete = otStatus>>6&1
-		#boilerStatus
-		boilerFault = boilerStatus&1
-		boilerCHMode = (boilerStatus>>1)&1
-		boilerDHWMode = (boilerStatus>>2)&1
-		boilerFlameStatus = (boilerStatus>>3)&1
-		boilerCoolingStatus = (boilerStatus>>4)&1
-		boilerCH2Mode = (boilerStatus>>5)&1
-		boilerDiagnostic = (boilerStatus>>6)&1
-		#boilerConfig
-		boilerMemberID = boilerConfig&0xFF
-		boilerDHWPresent = (boilerConfig>>8)&1
-		boilerControlType = (boilerConfig>>9)&1
-		boilerCoolingConfig = (boilerConfig>>10)&1
-		boilerDHWConfig = (boilerConfig>>11)&1
-		boilerPumpControlFunction = (boilerConfig>>12)&1
-		boilerCH2Present = (boilerConfig>>13)&1
-		#errorConfig
-		errorOEM = errorFlags&0xFF
-		errorServiceRequered = (errorFlags>>8)&1
-		errorLockoutReset = (errorFlags>>9)&1
-		errorLowWaterPress = (errorFlags>>10)&1
-		errorGasFlameFault = (errorFlags>>11)&1
-		errorAirPressureFault = (errorFlags>>12)&1
-		errorWaterOverTemperature = (errorFlags>>13)&1
