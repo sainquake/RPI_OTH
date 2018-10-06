@@ -206,8 +206,8 @@ class OpenThermHat:
 	def getOTStatus(self):
 		otStatus = self.getOpenTermStatus(6)
 		boilerStatus = self.getBoilerReg(0)
-		boilerConfig = oth.getBoilerReg(3)
-		errorFlags = oth.getBoilerReg(5)
+		boilerConfig = self.getBoilerReg(3)
+		errorFlags = self.getBoilerReg(5)
 		otData = OTData(otStatus,boilerStatus,boilerConfig,errorFlags)
 		return	otData
 	def getADC(self,ch):
