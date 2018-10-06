@@ -21,6 +21,14 @@ class myHandler(BaseHTTPRequestHandler):
 		f = open('html.html', 'r')
 		self.wfile.write( f.read().encode() )
 		f.close()
+		
+		self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'>").encode() )
+		self.wfile.write(("<p>temp: 88</p>").encode() )
+		self.wfile.write(("</div></div><hr>").encode() )
+  
+		f = open('footer.html', 'r')
+		self.wfile.write( f.read().encode() )
+		f.close()
 		return
 
 try:
