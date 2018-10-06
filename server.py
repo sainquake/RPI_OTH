@@ -11,11 +11,11 @@ class myHandler(BaseHTTPRequestHandler):
 	#Handler for the GET requests
 	def do_GET(self):
 		self.send_response(200)
-		self.send_header('Content-type','text/html')
+		self.send_header('Content-type','text/html'.encode())
 		self.end_headers()
 		# Send the html message
-		self.wfile.write("Hello World !")
-		self.wfile.write("<p>You accessed path: %s</p>" % self.path)
+		self.wfile.write("Hello World !".encode())
+		self.wfile.write(("<p>You accessed path: " +str(self.path)+ "</p>").encode() )
 		return
 
 try:
