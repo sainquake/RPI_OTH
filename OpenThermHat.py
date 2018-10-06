@@ -95,6 +95,11 @@ class OpenThermHat:
 	timeouts=0
 	crcError = 0
 	addressMatchError = 0
+	
+	otStatus = 0
+	boilerStatus = 0
+	boilerConfig = 0
+	errorFlags = 0
 	otData = OTData(0,0,0,0)
 	def __init__(self):
 		print("init")
