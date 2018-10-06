@@ -17,13 +17,13 @@ while True:
 	else:
 		oth.ledControl(oth.RED,True)
 
-	gsmModuleOff = oth.getGSM(0)
+	gsmModuleOff = oth.getGSM(255)
 	oth.ledControl(oth.BLUE,not gsmModuleOff)
 	print("GSM module off\t"+str(gsmModuleOff))
 	
 	oth.getOTStatus()
-	print("boiler module off\t"+str(oth.otData.otTimeout))
-	oth.ledControl(oth.GREEN,not oth.otData.otTimeout)
+	print("boiler module off\t"+str(oth.otData.otNoResponse))
+	oth.ledControl(oth.GREEN,not oth.otData.otNoResponse)
 	
 	time.sleep(1)
 
