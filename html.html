@@ -3,12 +3,26 @@
 <title>W3.CSS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-teal.css">
+<body style="max-width:600px">
 
-<body>
-
-<div class="w3-container w3-card">
-  <h1>OpenThermData</h1>
+<nav class="w3-sidebar w3-bar-block w3-card" id="mySidebar">
+<div class="w3-container w3-theme-d2">
+  <span onclick="closeSidebar()" class="w3-button w3-display-topright w3-large">X</span>
+  <br>
+  <div class="w3-padding w3-center">
+  OTH
+  </div>
 </div>
+<a class="w3-bar-item w3-button" href="ot">ot</a>
+<a class="w3-bar-item w3-button" href="blink">blink</a>
+<a class="w3-bar-item w3-button" href="#">Messages</a>
+</nav>
+
+<header class="w3-bar w3-card w3-theme">
+  <button class="w3-bar-item w3-button w3-xxxlarge w3-hover-theme" onclick="openSidebar()">&#9776;</button>
+  <h1 class="w3-bar-item">OpenTherm</h1>
+</header>
 
 <div class="w3-container">
 <hr>

@@ -16,16 +16,15 @@ class myHandler(BaseHTTPRequestHandler):
 		self.send_header('Content-type'.encode(),'text/html'.encode())
 		self.end_headers()
 		# Send the html message
-		#self.wfile.write("Hello World !".encode())
-		#self.wfile.write(("<p>You accessed path: " +str(self.path)+ "</p>").encode() )
+		
+		
 		f = open('html.html', 'r')
 		self.wfile.write( f.read().encode() )
 		f.close()
-		
-		self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'>").encode() )
-		self.wfile.write(("<p>temp: 88</p>").encode() )
-		self.wfile.write(("</div></div><hr>").encode() )
-  
+		if self.path=="/ot":
+			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'>").encode() )
+			self.wfile.write(("<p>temp: 88</p>").encode() )
+			self.wfile.write(("</div></div><hr>").encode() )
 		f = open('footer.html', 'r')
 		self.wfile.write( f.read().encode() )
 		f.close()
