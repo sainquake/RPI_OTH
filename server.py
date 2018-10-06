@@ -66,7 +66,7 @@ class myHandler(BaseHTTPRequestHandler):
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerDHWConfig: "+str(oth.otData.boilerDHWConfig)+"</p></div></div><hr>").encode() )
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerPumpControlFunction: "+str(oth.otData.boilerPumpControlFunction)+"</p></div></div><hr>").encode() )
 			
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>errorFlags: "+str(oth.otData.errorFlags)+"</p></div></div><hr>").encode() )
+			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>errorFlags: "+str(oth.errorFlags)+"</p></div></div><hr>").encode() )
 		f = open('footer.html', 'r')
 		self.wfile.write( f.read().encode() )
 		f.close()
