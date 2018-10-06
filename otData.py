@@ -15,7 +15,7 @@ while True:
 	time.sleep(5)
 	
 	oth.getOTStatus()
-	print("#otStatus")
+	print("#otStatus=\t"+str(oth.otStatus))
 	print("ot.timeout=\t"+str(oth.otData.otTimeout))
 	print("ot.index=\t"+str(oth.otData.otIndex))
 	print("ot.busy=\t"+str(oth.otData.otBusy))
@@ -24,7 +24,8 @@ while True:
 	print("ot.readingResponse=\t"+str(oth.otData.otReadingResponse))
 	print("ot.specialRequest=\t"+str(oth.otData.otSpecialRequest))
 	print("ot.specialRequestComplete=\t"+str(oth.otData.otSpecialRequestComplete))
-	print("#boilerStatus")
+	
+	print("#boilerStatus=\t"+str(oth.boilerStatus))
 	print("boilerFault=\t"+str(oth.otData.boilerFault))
 	print("boilerCHMode=\t"+str(oth.otData.boilerCHMode))
 	print("boilerDHWMode=\t"+str(oth.otData.boilerDHWMode))
@@ -32,7 +33,8 @@ while True:
 	print("boilerCoolingStatus=\t"+str(oth.otData.boilerCoolingStatus))
 	print("boilerCH2Mode=\t"+str(oth.otData.boilerCH2Mode))
 	print("boilerDiagnostic=\t"+str(oth.otData.boilerDiagnostic))
-	print("#boilerConfig")
+	
+	print("#boilerConfig=\t"+str(oth.boilerConfig))
 	print("boilerMemberID=\t"+str(oth.otData.boilerMemberID))
 	print("boilerDHWPresent=\t"+str(oth.otData.boilerDHWPresent))
 	print("boilerControlType=\t"+str(oth.otData.boilerControlType))
@@ -40,7 +42,8 @@ while True:
 	print("boilerDHWConfig=\t"+str(oth.otData.boilerDHWConfig))
 	print("boilerPumpControlFunction=\t"+str(oth.otData.boilerPumpControlFunction))
 	print("boilerCH2Present=\t"+str(oth.otData.boilerCH2Present))
-	print("#errorConfig")
+	
+	print("#errorConfig=\t"+str(oth.errorConfig))
 	print("errorOEM=\t"+str(oth.otData.errorOEM))
 	print("errorServiceRequered=\t"+str(oth.otData.errorServiceRequered))
 	print("errorLockoutReset=\t"+str(oth.otData.errorLockoutReset))
