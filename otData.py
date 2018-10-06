@@ -13,16 +13,7 @@ while True:
 		print("RESET MCU")
 
 	time.sleep(5)
-	
-	oth.otStatus = oth.getOpenTermStatus(6)
-	print("#otStatus=\t"+str(oth.otStatus))
-	oth.boilerStatus = oth.getBoilerReg(0)
-	print("#boilerStatus=\t"+str(oth.boilerStatus))
-	oth.boilerConfig = oth.getBoilerReg(3)
-	print("#boilerConfig=\t"+str(oth.boilerConfig))
-	oth.errorFlags = oth.getBoilerReg(5)
-	print("#errorFlags=\t"+str(oth.errorFlags))
-		
+
 	oth.getOTStatus()
 	print("#otStatus=\t"+str(oth.otStatus))
 	print("ot.timeout=\t"+str(oth.otData.otTimeout))

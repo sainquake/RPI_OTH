@@ -237,12 +237,12 @@ class OpenThermHat:
 			return None
 		return	((d>>16)&0xFFFF)/256.0
 	def getOTStatus(self):
-		otStatus = self.getOpenTermStatus(6)
-		boilerStatus = self.getBoilerReg(0)
-		boilerConfig = self.getBoilerReg(3)
-		errorFlags = self.getBoilerReg(5)
-		otData = OTData(otStatus,boilerStatus,boilerConfig,errorFlags)
-		return	otData
+		self.otStatus = self.getOpenTermStatus(6)
+		self.boilerStatus = self.getBoilerReg(0)
+		self.boilerConfig = self.getBoilerReg(3)
+		self.errorFlags = self.getBoilerReg(5)
+		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
+		return	self.otData
 	def getADC(self,ch):
 		d = self.sendReceive(self.RPi_ADC_UART_ADDRESS,ch,0,0)
 		if self.addressMatchError>0:
