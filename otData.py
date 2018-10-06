@@ -14,6 +14,11 @@ while True:
 
 	time.sleep(5)
 	
+	oth.otStatus = oth.getOpenTermStatus(6)
+	oth.boilerStatus = oth.getBoilerReg(0)
+	oth.boilerConfig = oth.getBoilerReg(3)
+	oth.errorFlags = oth.getBoilerReg(5)
+		
 	oth.getOTStatus()
 	print("#otStatus=\t"+str(oth.otStatus))
 	print("ot.timeout=\t"+str(oth.otData.otTimeout))
