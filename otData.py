@@ -14,10 +14,14 @@ while True:
 
 	time.sleep(5)
 	
-	oth.otStatus = oth.getOpenTermStatus(6)
-	oth.boilerStatus = oth.getBoilerReg(0)
-	oth.boilerConfig = oth.getBoilerReg(3)
-	oth.errorFlags = oth.getBoilerReg(5)
+	otStatus = oth.getOpenTermStatus(6)
+	print("#otStatus=\t"+str(otStatus))
+	boilerStatus = oth.getBoilerReg(0)
+	print("#boilerStatus=\t"+str(boilerStatus))
+	boilerConfig = oth.getBoilerReg(3)
+	print("#boilerConfig=\t"+str(boilerConfig))
+	errorFlags = oth.getBoilerReg(5)
+	print("#errorFlags=\t"+str(errorFlags))
 		
 	oth.getOTStatus()
 	print("#otStatus=\t"+str(oth.otStatus))
