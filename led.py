@@ -22,7 +22,7 @@ while True:
 	print("GSM module off\t"+str(gsmModuleOff))
 	
 	oth.getOTStatus()
-	print("boiler module off\t"+str(oth.otData.otTimeout)
+	print("boiler module off\t"+str(oth.otData.otTimeout))
 	oth.ledControl(oth.GREEN,not oth.otData.otTimeout)
 	
 	time.sleep(1)
