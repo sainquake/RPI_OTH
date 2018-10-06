@@ -172,6 +172,34 @@ class OpenThermHat:
 		return int.from_bytes(data, byteorder='little')
 	def ledControl(self,pin,state):
 		GPIO.output(pin, state)
+	def getBoilerReg(self,address,da=0):
+		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,address,da&0xFF,(da>>8)&0xFF)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		d = (d>>16)&0xFFFF
+		return d
+	def getBoilerHeader(self,address):
+		d = self.sendReceive(32,address,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		d = (d>>16)&0xFFFF
+		return d
+	def getBoilerID(self):
+		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,3,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		d = (d>>16)&0xFFFF
+		#print("P:"+str(d>>15)+"\tMSG-TYPE:"+str(d>>12))
+		return d
+	def getOpenTermStatus(self,subaddress):
+		d = self.sendReceive(self.RPi_OT_STATUS_UART_ADDRESS,subaddress,0,0)
+		if self.addressMatchError>0:
+			self.addressMatchError=0
+			return None
+		return (d>>16)&0xFFFF
 	def setTemp(self,temp):
 		d = self.getBoilerReg((1<<7) +1,temp*256)/256.0
 		if self.addressMatchError>0:
@@ -221,34 +249,6 @@ class OpenThermHat:
 			self.addressMatchError=0
 			return None
 		return ((d>>16)&0xFFFF)/256.0
-	def getBoilerReg(self,address,da=0):
-		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,address,da&0xFF,(da>>8)&0xFF)
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None
-		d = (d>>16)&0xFFFF
-		return d
-	def getBoilerHeader(self,address):
-		d = self.sendReceive(32,address,0,0)
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None
-		d = (d>>16)&0xFFFF
-		return d
-	def getBoilerID(self):
-		d = self.sendReceive(self.RPi_OT_UART_ADDRESS,3,0,0)
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None
-		d = (d>>16)&0xFFFF
-		#print("P:"+str(d>>15)+"\tMSG-TYPE:"+str(d>>12))
-		return d
-	def getOpenTermStatus(self,subaddress):
-		d = self.sendReceive(self.RPi_OT_STATUS_UART_ADDRESS,subaddress,0,0)
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None
-		return (d>>16)&0xFFFF
 	def getMem(self,address):
 		d = self.sendReceive(self.RPI_MEM_UART_ADDRESS,address,0,0)
 		if self.addressMatchError>0:
