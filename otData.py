@@ -25,6 +25,7 @@ while True:
 	print("ot.readingResponse=\t"+str(oth.otData.otReadingResponse))
 	print("ot.specialRequest=\t"+str(oth.otData.otSpecialRequest))
 	print("ot.specialRequestComplete=\t"+str(oth.otData.otSpecialRequestComplete))
+	print("ot.otNoResponse=\t"+str(oth.otData.otNoResponse))
 	
 	print("#boilerStatus=\t"+str(oth.boilerStatus))
 	print("boilerFault=\t"+str(oth.otData.boilerFault))

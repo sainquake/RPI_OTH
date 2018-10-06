@@ -16,6 +16,7 @@ class OTData:
 	otReadingResponse = 0
 	otSpecialRequest = 0
 	otSpecialRequestComplete = 0
+	otNoResponse = 0
 	#boilerStatus
 	boilerFault = 0
 	boilerCHMode = 0
@@ -49,6 +50,7 @@ class OTData:
 		self.otReadingResponse = otStatus>>4&1
 		self.otSpecialRequest = otStatus>>5&1
 		self.otSpecialRequestComplete = otStatus>>6&1
+		self.otNoResponse = otStatus>>7&1
 		#boilerStatus
 		self.boilerFault = boilerStatus&1
 		self.boilerCHMode = (boilerStatus>>1)&1

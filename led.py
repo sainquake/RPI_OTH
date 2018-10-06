@@ -17,7 +17,7 @@ while True:
 	else:
 		oth.ledControl(oth.RED,True)
 
-	gsmModuleOff = oth.getGSM(255)
+	gsmModuleOff = oth.getGSM(0)
 	oth.ledControl(oth.BLUE,not gsmModuleOff)
 	print("GSM module off\t"+str(gsmModuleOff))
 	
