@@ -43,7 +43,7 @@ while True:
 	print("boilerPumpControlFunction=\t"+str(oth.otData.boilerPumpControlFunction))
 	print("boilerCH2Present=\t"+str(oth.otData.boilerCH2Present))
 	
-	print("#errorConfig=\t"+str(oth.errorConfig))
+	print("#errorFlags=\t"+str(oth.errorFlags))
 	print("errorOEM=\t"+str(oth.otData.errorOEM))
 	print("errorServiceRequered=\t"+str(oth.otData.errorServiceRequered))
 	print("errorLockoutReset=\t"+str(oth.otData.errorLockoutReset))
