@@ -27,12 +27,12 @@ class myHandler(BaseHTTPRequestHandler):
 		self.send_header('Content-type'.encode(),'text/html'.encode())
 		self.end_headers()
 		# Send the html message
-		
-		
-		f = open('html.html', 'r')
-		self.wfile.write( f.read().encode() )
-		f.close()
+		if self.path=="/json":
+			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
 		if self.path=="/ot":
+			f = open('html.html', 'r')
+			self.wfile.write( f.read().encode() )
+			f.close()
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>exhoust temperature:"+str(oth.getBoilerReg(33))+"C</p></div></div><hr>").encode() )
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>Relative Modulation Level:"+str(oth.getBoilerReg(17)/256.0)+"%</p></div></div><hr>").encode() )
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>Boiler water temp:"+str(oth.getBoilerReg(25)/256.0)+"C</p></div></div><hr>").encode() )
@@ -67,9 +67,9 @@ class myHandler(BaseHTTPRequestHandler):
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerPumpControlFunction: "+str(oth.otData.boilerPumpControlFunction)+"</p></div></div><hr>").encode() )
 			
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>errorFlags: "+str(oth.errorFlags)+"</p></div></div><hr>").encode() )
-		f = open('footer.html', 'r')
-		self.wfile.write( f.read().encode() )
-		f.close()
+			f = open('footer.html', 'r')
+			self.wfile.write( f.read().encode() )
+			f.close()
 		return
 
 try:
