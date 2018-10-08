@@ -34,7 +34,7 @@ class myHandler(BaseHTTPRequestHandler):
 		self.wfile.write( parsed_path.encode() )
 		
 		query_components = parse_qs(urlparse(self.path).query)
-		self.wfile.write( query_components.encode() )
+		self.wfile.write( json.dumps(query_components).encode() )
 		
 		if self.path=="/json":
 			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
