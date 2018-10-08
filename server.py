@@ -39,7 +39,7 @@ class myHandler(BaseHTTPRequestHandler):
 		if parsed_path=="/json":
 			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
 		if parsed_path=="/echo":
-			echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,int(str(query_components["d1"])),int(str(query_components["d2"])))
+			echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,int(query_components.get('d1', None)),int(query_components.get('d2', None)))
 			self.wfile.write( echo.encode() )
 		if parsed_path=="/ot":
 			f = open('html.html', 'r')
