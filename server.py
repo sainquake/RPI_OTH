@@ -36,18 +36,18 @@ class myHandler(BaseHTTPRequestHandler):
 		query_components = parse_qs(urlparse(self.path).query)
 		self.wfile.write( json.dumps(query_components).encode() )
 		
-		if self.path=="/json":
+		if parsed_path=="/json":
 			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
-		if self.path=="/echo":
-			echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
+		if parsed_path=="/echo":
+			echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,query_components["d1"],query_components["d2"])
 			if (echo>>16)&0xFFFF!=0x0504:
 				oth.resetMCU()
 				print("RESET MCU")
 				oth.ledControl(oth.RED,False)
 			else:
 				oth.ledControl(oth.RED,True)
-			self.wfile.write( json.dumps(echo.__dict__).encode() )
-		if self.path=="/ot":
+			self.wfile.write( echo.encode() )
+		if parsed_path=="/ot":
 			f = open('html.html', 'r')
 			self.wfile.write( f.read().encode() )
 			f.close()
