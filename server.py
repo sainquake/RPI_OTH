@@ -29,8 +29,8 @@ class myHandler(BaseHTTPRequestHandler):
 		self.send_header('Content-type'.encode(),'text/html'.encode())
 		self.end_headers()
 		# Send the html message
-		parsed_path = urlparse.parse_qs(urlparse.urlparse(self.path).query)
-		self.wfile.write( json.dumps(parsed_path.__dict__).encode() )
+		parsed_path = urlparse(self.path).query
+		self.wfile.write( parsed_path.encode() )
 		
 		if self.path=="/json":
 			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
