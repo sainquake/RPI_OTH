@@ -30,6 +30,15 @@ class myHandler(BaseHTTPRequestHandler):
 		# Send the html message
 		if self.path=="/json":
 			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
+		if self.path=="/echo":
+			echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
+			if (echo>>16)&0xFFFF!=0x0504:
+				oth.resetMCU()
+				print("RESET MCU")
+				oth.ledControl(oth.RED,False)
+			else:
+				oth.ledControl(oth.RED,True)
+			self.wfile.write( json.dumps(echo.__dict__).encode() )
 		if self.path=="/ot":
 			f = open('html.html', 'r')
 			self.wfile.write( f.read().encode() )
