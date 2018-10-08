@@ -12,9 +12,9 @@ while True:
 		oth.resetMCU()
 		print("RESET MCU")
 
-	time.sleep(5)
+	time.sleep(50)
 
-	oth.getOTStatus()
+#	oth.getOTStatus()
 	print("")
 	print("#otStatus=\t"+str(oth.otStatus))
 	print("ot.timeout=\t"+str(oth.otData.otTimeout))
@@ -55,26 +55,26 @@ while True:
 	print("errorWaterOverTemperature=\t"+str(oth.otData.errorWaterOverTemperature))
 	#print("Boiler ID28=\t"+str(oth.getBoilerReg(28)/256.0)+"\tReturn water temperature")
 	#time.sleep(0.1)
-	print("Boiler ID33=\t"+str(oth.getBoilerReg(33))+"\texhoust temperature")
+#	print("Boiler ID33=\t"+str(oth.getBoilerReg(33))+"\texhoust temperature")
 #	time.sleep(0.1)
 	#print("Boiler ID116=\t"+str(oth.getBoilerReg(116))+"\tburner starts")
 	#time.sleep(0.5)
-	print("Boiler ID17=\t"+str(oth.getBoilerReg(17)/256.0)+"\t Relative Modulation Level")
+#	print("Boiler ID17=\t"+str(oth.getBoilerReg(17)/256.0)+"\t Relative Modulation Level")
 #	time.sleep(0.1)
 	print("Boiler ID25=\t"+str(oth.getBoilerReg(25)/256.0)+"\t Boiler water temp")
 #	time.sleep(0.1)
-	print("Boiler ID26=\t"+str(oth.getBoilerReg(26)/256.0)+"\t DHW temperature")
+#	print("Boiler ID26=\t"+str(oth.getBoilerReg(26)/256.0)+"\t DHW temperature")
 #	time.sleep(0.1)
-	print("Boiler ID28=\t"+str(oth.getBoilerReg(28)/256.0)+"\t Return water temperature")
+#	print("Boiler ID28=\t"+str(oth.getBoilerReg(28)/256.0)+"\t Return water temperature")
 #	time.sleep(0.1)
-	print("Boiler ID116=\t"+str(oth.getBoilerReg(116))+"\t burner starts")
-	print("Boiler ID19=\t"+str(oth.getBoilerReg(19))+"\t l/min flow")
+#	print("Boiler ID116=\t"+str(oth.getBoilerReg(116))+"\t burner starts")
+#	print("Boiler ID19=\t"+str(oth.getBoilerReg(19))+"\t l/min flow")
 	#requests with waiting for response
-	print("set temp"+ str(oth.setTemp(55)))
+	print("set temp"+ str(oth.setTemp(60)))
 #	print("Boiler ID1=\t"+str(oth.getBoilerReg((1<<7) +1,44*256)/256.0)+"\t set water temp")
-	while not( oth.otData.otSpecialRequestComplete ):
-		time.sleep(0.5)
-	print("set temp"+ str(oth.setTemp(55)))
+#	while not( oth.otData.otSpecialRequestComplete ):
+#		time.sleep(0.5)
+#	print("set temp"+ str(oth.setTemp(55)))
 #	print("Boiler ID1=\t"+str(oth.getBoilerReg((1<<7) +1,44*256)/256.0)+"\t set water temp")
 	
 #	print("Boiler ID8=\t"+str(oth.getBoilerReg((1<<7) +8,33*256)/256.0)+"\t Control setpoint 2")
@@ -86,3 +86,8 @@ while True:
 #	while not( (oth.getOpenTermStatus(6)>>6)&1 ):
 #		time.sleep(0.5)
 #	print("Boiler ID16=\t"+str(oth.getBoilerReg((1<<7) +16,22*256)/256.0)+"\t Room setpoint")
+#       print("Boiler ID24=\t"+str(oth.getBoilerReg((1<<7) +24,22*256)/256.0)+"\t Room temperature")
+#       while not( (oth.getOpenTermStatus(6)>>6)&1 ):
+#               time.sleep(0.5)
+#       print("Boiler ID24=\t"+str(oth.getBoilerReg((1<<7) +24,22*256)/256.0)+"\t Room temperature")
+
