@@ -6,7 +6,7 @@ import sys
 from OpenThermHat import OpenThermHat
 import time
 import json
-import urlparse
+from urlparse import urlparse
 
 oth = OpenThermHat()
 #oth.resetMCU()
