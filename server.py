@@ -6,6 +6,7 @@ import sys
 from OpenThermHat import OpenThermHat
 import time
 import json
+import urlparse
 
 oth = OpenThermHat()
 #oth.resetMCU()
@@ -28,6 +29,9 @@ class myHandler(BaseHTTPRequestHandler):
 		self.send_header('Content-type'.encode(),'text/html'.encode())
 		self.end_headers()
 		# Send the html message
+		parsed_path = urlparse.urlparse(self.path)
+		self.wfile.write( json.dumps(parsed_path.__dict__).encode() )
+		
 		if self.path=="/json":
 			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
 		if self.path=="/echo":
