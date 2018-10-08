@@ -5,6 +5,7 @@ import shutil
 import sys
 from OpenThermHat import OpenThermHat
 import time
+import json
 
 oth = OpenThermHat()
 #oth.resetMCU()
