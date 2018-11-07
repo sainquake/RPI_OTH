@@ -3,7 +3,7 @@
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import shutil
 import sys
-from OpenThermHat import OpenThermHat
+from OpenThermHat import OpenThermHat,OTData
 import time
 import json
 from urllib.parse import urlparse,parse_qs
@@ -31,16 +31,46 @@ class myHandler(BaseHTTPRequestHandler):
 		# Send the html message
 		
 		parsed_path = urlparse(self.path).path
-		self.wfile.write( parsed_path.encode() )
+		#self.wfile.write( parsed_path.encode() )
 		
 		query_components = parse_qs(urlparse(self.path).query)
-		self.wfile.write( json.dumps(query_components).encode() )
+		#self.wfile.write( json.dumps(query_components).encode() )
 		
 		if parsed_path=="/json":
 			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
 		if parsed_path=="/echo":
-			echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,int(query_components.get('d1', None)),int(query_components.get('d2', None)))
-			self.wfile.write( echo.encode() )
+			echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,int(query_components["d"][0])&0xFF,(int(query_components["d"][0])>>8)&0xFF)
+			#print( query_components["d1"][0] )
+			self.wfile.write( json.dumps({ "echo": (echo>>16)&0xFFFF}).encode() )
+		if parsed_path=="/otstatus":
+			oth.otStatus = oth.getOpenTermStatus(6)
+			oth.otData = OTData(oth.otStatus,oth.boilerStatus,oth.boilerConfig,oth.errorFlags)
+			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
+		if parsed_path=="/otstatusweb":
+			oth.otStatus = oth.getOpenTermStatus(6)
+			oth.otData = OTData(oth.otStatus,oth.boilerStatus,oth.boilerConfig,oth.errorFlags)
+			#self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
+			
+			f = open('html.html', 'r')
+			self.wfile.write( f.read().encode() )
+			f.close()
+			
+			for key, value in oth.otData.__dict__.items():
+				self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>"+str(key)+":"+str(value)+"C</p></div></div><hr>").encode() )
+			
+			
+			f = open('footer.html', 'r')
+			self.wfile.write( f.read().encode() )
+			f.close()
+		if parsed_path=="/otreq":
+			#oth.getOpenTermStatus(7)
+			resp = oth.getBoilerReg(int(query_components["r"][0]))
+			print( int(query_components["r"][0]) )
+			print( resp )
+			self.wfile.write( json.dumps({ "resp": resp}).encode() )
+		if parsed_path=="/otreset":
+			oth.getOpenTermStatus(7)
+			self.wfile.write( json.dumps(oth.otData.__dict__).encode() )
 		if parsed_path=="/ot":
 			f = open('html.html', 'r')
 			self.wfile.write( f.read().encode() )
@@ -53,30 +83,7 @@ class myHandler(BaseHTTPRequestHandler):
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>burner starts:"+str(oth.getBoilerReg(19))+"l/min</p></div></div><hr>").encode() )
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>flow:"+str(oth.getBoilerReg(116))+"l/min</p></div></div><hr>").encode() )
 			oth.getOTStatus()
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.timeout=\t"+str(oth.otData.otTimeout)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.otIndex=\t"+str(oth.otData.otIndex)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.otBusy=\t"+str(oth.otData.otBusy)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.otComplete=\t"+str(oth.otData.otComplete)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.otFrameSendedAndStartWaitingACK=\t"+str(oth.otData.otFrameSendedAndStartWaitingACK)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.otReadingResponse=\t"+str(oth.otData.otReadingResponse)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.otSpecialRequest=\t"+str(oth.otData.otSpecialRequest)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.otSpecialRequestComplete=\t"+str(oth.otData.otSpecialRequestComplete)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>ot.otNoResponse=\t'"+str(oth.otData.otNoResponse)+"</p></div></div><hr>").encode() )
 			
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerFault: "+str(oth.otData.boilerFault)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerCHMode: "+str(oth.otData.boilerCHMode)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerDHWMode: "+str(oth.otData.boilerDHWMode)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerFlameStatus: "+str(oth.otData.boilerFlameStatus)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerCoolingStatus: "+str(oth.otData.boilerCoolingStatus)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerCH2Mode: "+str(oth.otData.boilerCH2Mode)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerDiagnostic: "+str(oth.otData.boilerDiagnostic)+"</p></div></div><hr>").encode() )
-			
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerMemberID: "+str(oth.otData.boilerMemberID)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerDHWPresent: "+str(oth.otData.boilerDHWPresent)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerControlType: "+str(oth.otData.boilerControlType)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerCoolingConfig: "+str(oth.otData.boilerCoolingConfig)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerDHWConfig: "+str(oth.otData.boilerDHWConfig)+"</p></div></div><hr>").encode() )
-			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>boilerPumpControlFunction: "+str(oth.otData.boilerPumpControlFunction)+"</p></div></div><hr>").encode() )
 			
 			self.wfile.write(("<div class='w3-cell-row w3-container'><div class='w3-cell'><p>errorFlags: "+str(oth.errorFlags)+"</p></div></div><hr>").encode() )
 			f = open('footer.html', 'r')

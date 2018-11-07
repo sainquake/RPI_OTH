@@ -1,8 +1,0 @@
-import spidev
-spi = spidev.SpiDev()
-spi.open(0, 0)
-spi.max_speed_hz = 2000000
-spi.xfer([0xspi.xfer([0x01])
-01])
-
-spi.close()

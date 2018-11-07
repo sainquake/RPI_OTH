@@ -12,9 +12,9 @@ while True:
 		oth.resetMCU()
 		print("RESET MCU")
 
-	time.sleep(50)
+	time.sleep(1)
 
-#	oth.getOTStatus()
+	#oth.getOTStatus()
 	print("")
 	print("#otStatus=\t"+str(oth.otStatus))
 	print("ot.timeout=\t"+str(oth.otData.otTimeout))
@@ -61,7 +61,7 @@ while True:
 	#time.sleep(0.5)
 #	print("Boiler ID17=\t"+str(oth.getBoilerReg(17)/256.0)+"\t Relative Modulation Level")
 #	time.sleep(0.1)
-	print("Boiler ID25=\t"+str(oth.getBoilerReg(25)/256.0)+"\t Boiler water temp")
+#	print("Boiler ID25=\t"+str(oth.getBoilerReg(25)/256.0)+"\t Boiler water temp")
 #	time.sleep(0.1)
 #	print("Boiler ID26=\t"+str(oth.getBoilerReg(26)/256.0)+"\t DHW temperature")
 #	time.sleep(0.1)
@@ -70,7 +70,7 @@ while True:
 #	print("Boiler ID116=\t"+str(oth.getBoilerReg(116))+"\t burner starts")
 #	print("Boiler ID19=\t"+str(oth.getBoilerReg(19))+"\t l/min flow")
 	#requests with waiting for response
-	print("set temp"+ str(oth.setTemp(60)))
+#	print("set temp"+ str(oth.setTemp(60)))
 #	print("Boiler ID1=\t"+str(oth.getBoilerReg((1<<7) +1,44*256)/256.0)+"\t set water temp")
 #	while not( oth.otData.otSpecialRequestComplete ):
 #		time.sleep(0.5)
@@ -91,3 +91,11 @@ while True:
 #               time.sleep(0.5)
 #       print("Boiler ID24=\t"+str(oth.getBoilerReg((1<<7) +24,22*256)/256.0)+"\t Room temperature")
 
+	out = oth.OT(0,0,0)
+	print("ot.timeout=\t"+str(out.timeout))
+	print("ot.specialRequestComplete=\t"+str(out.complete))
+	print("OTResponseHeader TYPE:"+ str(out.type) +" ID:"+ str(out.id))
+	print("OTResponse"+ str(out.value))
+	
+	print("\n\n=======================\n\n")
+	time.sleep(10)

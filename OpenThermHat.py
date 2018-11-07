@@ -6,6 +6,14 @@ import RPi.GPIO as GPIO
 import time
 
 print("OTH")
+class OTResp:
+	def __init__(self,type_,id_,value_,timeout_,complete_,whileBreak_):
+		self.type = type_
+		self.id = id_
+		self.value = value_
+		self.timeout = timeout_
+		self.complete = complete_
+		self.whileBreak = whileBreak_
 class OTData:
 	#otStatus
 	otTimeout = 0
@@ -85,6 +93,12 @@ class OpenThermHat:
 	RPi_ADC_UART_ADDRESS=			6
 	RPi_OT_STATUS_UART_ADDRESS=		7
 	RPI_MEM_UART_ADDRESS=			8
+	
+	RPi_OT_HEADER_UART_ADDRESS= 32
+	RPi_OT_REQUEST_ADDRESS= 33
+	RPi_OT_COMPLETE_ADDRESS= 34
+	RPi_OT_RESPONSE_ADDRESS= 35
+	RPi_OT_ACTIVATE_ADDRESS=36
 
 	RPi_SET_TEMP_UART_ADDRESS=       10
 	RPi_GET_HW_TEMP_UART_ADDRESS=    11
@@ -197,6 +211,34 @@ class OpenThermHat:
 		d = (d>>16)&0xFFFF
 		#print("P:"+str(d>>15)+"\tMSG-TYPE:"+str(d>>12))
 		return d
+	def OT(self, type_, id_,  value_):
+		self.OTRequest(type_, id_,  value_)
+		self.getOTStatus()
+		while not self.otData.otSpecialRequestComplete and not self.otData.otTimeout:
+			self.getOTStatus()
+			time.sleep(0.3)		
+		tmp = self.OTResponseHeader()
+		return OTResp(tmp>>12,tmp&0xFF,self.OTResponse(),self.otData.otTimeout,self.otData.otSpecialRequestComplete,0)
+	def OTRequest(self, type_, id_,  value_):
+		d = self.sendReceive(self.RPi_OT_REQUEST_ADDRESS,(type_<<7)+id_,value_&0xFF,(value_>>8)&0xFF)
+		d = (d>>16)&0xFFFF
+		return d
+	def OTRequestComplete(self):
+		d = self.sendReceive(self.RPi_OT_COMPLETE_ADDRESS,0,0,0)
+		d = (d>>16)&0xFFFF
+		return d
+	def OTResponseHeader(self):
+		d = self.sendReceive(self.RPi_OT_RESPONSE_ADDRESS,0,0,0)
+		d = (d>>16)&0xFFFF
+		return d
+	def OTResponse(self):
+		d = self.sendReceive(self.RPi_OT_RESPONSE_ADDRESS,1,0,0)
+		d = (d>>16)&0xFFFF
+		return d
+	def OTActivate(self):
+		d = self.sendReceive(self.RPi_OT_ACTIVATE_ADDRESS,0,0,0)
+		d = (d>>16)&0xFFFF
+		return d
 	def getOpenTermStatus(self,subaddress):
 		d = self.sendReceive(self.RPi_OT_STATUS_UART_ADDRESS,subaddress,0,0)
 		if self.addressMatchError>0:
@@ -241,9 +283,9 @@ class OpenThermHat:
 		return	((d>>16)&0xFFFF)/256.0
 	def getOTStatus(self):
 		self.otStatus = self.getOpenTermStatus(6)
-		self.boilerStatus = self.getBoilerReg(0)
-		self.boilerConfig = self.getBoilerReg(3)
-		self.errorFlags = self.getBoilerReg(5)
+		#self.boilerStatus = self.getBoilerReg(0)
+		#self.boilerConfig = self.getBoilerReg(3)
+		#self.errorFlags = self.getBoilerReg(5)
 		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
 		return	self.otData
 	def getADC(self,ch):
