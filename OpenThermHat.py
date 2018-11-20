@@ -192,6 +192,7 @@ class OpenThermHat:
 		#print("P:"+str(d>>15)+"\tMSG-TYPE:"+str(d>>12))
 		return d
 	def OT(self, type_, id_,  value_):
+		self.ledControl(self.GREEN,not GPIO.input(self.GREEN))
 		self.OTRequest(type_, id_,  value_)
 		self.otStatus = self.getOpenTermStatus(6)
 		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
