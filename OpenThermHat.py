@@ -213,9 +213,11 @@ class OpenThermHat:
 		return d
 	def OT(self, type_, id_,  value_):
 		self.OTRequest(type_, id_,  value_)
-		self.getOTStatus()
+		self.otStatus = self.getOpenTermStatus(6)
+		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
 		while not self.otData.otSpecialRequestComplete and not self.otData.otTimeout:
-			self.getOTStatus()
+			self.otStatus = self.getOpenTermStatus(6)
+			self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
 			time.sleep(0.3)		
 		tmp = self.OTResponseHeader()
 		return OTResp(tmp>>12,tmp&0xFF,self.OTResponse(),self.otData.otTimeout,self.otData.otSpecialRequestComplete,0)
@@ -282,10 +284,27 @@ class OpenThermHat:
 			return None
 		return	((d>>16)&0xFFFF)/256.0
 	def getOTStatus(self):
-		self.otStatus = self.getOpenTermStatus(6)
+		#self.otStatus = self.getOpenTermStatus(6)
 		#self.boilerStatus = self.getBoilerReg(0)
 		#self.boilerConfig = self.getBoilerReg(3)
 		#self.errorFlags = self.getBoilerReg(5)
+		out = self.OT(0,0,0)
+		if out.type is 4:
+			self.boilerStatus = out.value
+			print("accepted")
+		time.sleep(0.1)
+		
+		out = self.OT(0,3,0)
+		if out.type is 4:
+			print("accepted")
+			self.boilerConfig = out.value
+		time.sleep(0.1)
+
+		out = self.OT(0,5,0)
+		if out.type is 4:
+			print("accepted")
+			self.errorFlags = out.value
+		
 		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
 		return	self.otData
 	def getADC(self,ch):

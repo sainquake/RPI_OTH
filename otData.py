@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from OpenThermHat import OpenThermHat
+from OpenThermHat import OTData
 import time
 
 oth = OpenThermHat()
@@ -13,8 +14,9 @@ while True:
 		print("RESET MCU")
 
 	time.sleep(1)
+	
 
-	#oth.getOTStatus()
+	oth.getOTStatus()
 	print("")
 	print("#otStatus=\t"+str(oth.otStatus))
 	print("ot.timeout=\t"+str(oth.otData.otTimeout))
@@ -96,6 +98,42 @@ while True:
 	print("ot.specialRequestComplete=\t"+str(out.complete))
 	print("OTResponseHeader TYPE:"+ str(out.type) +" ID:"+ str(out.id))
 	print("OTResponse"+ str(out.value))
+	if out.type is 4:
+		oth.boilerStatus = out.value
+		print("accepted")
+	print("\n\n=======================\n\n")
+	time.sleep(1)
+	
+	out = oth.OT(0,3,0)
+	print("ot.timeout=\t"+str(out.timeout))
+	print("ot.specialRequestComplete=\t"+str(out.complete))
+	print("OTResponseHeader TYPE:"+ str(out.type) +" ID:"+ str(out.id))
+	print("OTResponse"+ str(out.value))
+	if out.type is 4:
+		print("accepted")
+		oth.boilerConfig = out.value
 	
 	print("\n\n=======================\n\n")
-	time.sleep(10)
+	time.sleep(1)
+
+	out = oth.OT(0,5,0)
+	print("ot.timeout=\t"+str(out.timeout))
+	print("ot.specialRequestComplete=\t"+str(out.complete))
+	print("OTResponseHeader TYPE:"+ str(out.type) +" ID:"+ str(out.id))
+	print("OTResponse"+ str(out.value))
+	if out.type is 4:
+		print("accepted")
+		oth.errorFlags = out.value
+	
+	oth.otData = OTData(oth.otStatus,oth.boilerStatus,oth.boilerConfig,oth.errorFlags)
+	print("\n\n=======================\n\n")
+	time.sleep(1)
+	
+	out = oth.OT(1,1,40*256)
+	print("ot.timeout=\t"+str(out.timeout))
+	print("ot.specialRequestComplete=\t"+str(out.complete))
+	print("OTResponseHeader TYPE:"+ str(out.type) +" ID:"+ str(out.id))
+	print("OTResponse"+ str(out.value/256.0))
+	
+	print("\n\n=======================\n\n")
+	time.sleep(1)
