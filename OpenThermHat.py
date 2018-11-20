@@ -15,40 +15,6 @@ class OTResp:
 		self.complete = complete_
 		self.whileBreak = whileBreak_
 class OTData:
-	#otStatus
-	otTimeout = 0
-	otIndex = 0
-	otBusy = 0
-	otComplete = 0
-	otFrameSendedAndStartWaitingACK = 0
-	otReadingResponse = 0
-	otSpecialRequest = 0
-	otSpecialRequestComplete = 0
-	otNoResponse = 0
-	#boilerStatus
-	boilerFault = 0
-	boilerCHMode = 0
-	boilerDHWMode = 0
-	boilerFlameStatus = 0
-	boilerCoolingStatus = 0
-	boilerCH2Mode = 0
-	boilerDiagnostic = 0
-	#boilerConfig
-	boilerMemberID = 0
-	boilerDHWPresent = 0
-	boilerControlType = 0
-	boilerCoolingConfig = 0
-	boilerDHWConfig = 0
-	boilerPumpControlFunction = 0
-	boilerCH2Present = 0
-	#errorConfig
-	errorOEM = 0
-	errorServiceRequered = 0
-	errorLockoutReset = 0
-	errorLowWaterPress = 0
-	errorGasFlameFault = 0
-	errorAirPressureFault = 0
-	errorWaterOverTemperature = 0
 	def __init__(self,otStatus,boilerStatus,boilerConfig,errorFlags):
 		self.otTimeout = otStatus&1
 		self.otIndex = otStatus>>8&0xFF
@@ -107,6 +73,7 @@ class OpenThermHat:
 	RED=4
 	GREEN=27
 	BLUE=6
+	nRST=18
 	ser = serial.Serial()
 	timeouts=0
 	crcError = 0
@@ -127,7 +94,11 @@ class OpenThermHat:
 		#GPIO.setup(self.POWER, GPIO.OUT)
 		#GPIO.output(self.POWER, True)
 		self.powerOn(True)
-		time.sleep(1)
+		#nRST as pull up input
+		GPIO.setup(self.nRST, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.add_event_detect(self.nRST, GPIO.BOTH)  # add rising edge detection on a channel
+		GPIO.add_event_callback(self.nRST, self.resetEvent)
+		#time.sleep(1)
 		#self.reset(False)
 		#time.sleep(1)
 		#self.reset(True)
@@ -148,17 +119,26 @@ class OpenThermHat:
 		self.ser.baudrate = 115200                     #Set baud rate to 9600
 		self.ser.timeout = 2
 		self.otData = OTData(0,0,0,0)
+	def resetEvent(self,channel):
+		if GPIO.input(self.nRST):
+			print('nRST was HIGH (WORKING STATE)')
+			self.ledControl(self.RED,False)
+		else:
+			print('nRST was LOW (RESET STATE)')
+			self.ledControl(self.RED,True)
 	def powerOn(self,b):
 		GPIO.setup(self.POWER, GPIO.OUT)
 		GPIO.output(self.POWER, b)
 	def reset(self,b):
-		GPIO.setup(18, GPIO.OUT)
-		GPIO.output(18, b)
+		if b:
+			GPIO.setup(self.nRST, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		else:
+			GPIO.setup(self.nRST, GPIO.OUT)
+			GPIO.output(self.nRST, b)
 	def resetMCU(self):
 		self.reset(False)
 		time.sleep(1)
 		self.reset(True)
-		time.sleep(1)
 	def sendReceive(self,ad0,ad1,data0,data1):
 		# address0 address1 data0 data1
 		values = bytearray([ad0, ad1, data0, data1,(ad0+ad1+data0+data1)&0xFF])
@@ -299,12 +279,10 @@ class OpenThermHat:
 			print("accepted")
 			self.boilerConfig = out.value
 		time.sleep(0.1)
-
 		out = self.OT(0,5,0)
 		if out.type is 4:
 			print("accepted")
 			self.errorFlags = out.value
-		
 		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
 		return	self.otData
 	def getADC(self,ch):
