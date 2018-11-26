@@ -5,17 +5,22 @@ from OpenThermHat import OTData
 import time
 
 oth = OpenThermHat()
-oth.resetMCU()
+#oth.resetMCU()
 while True:
+	'''
 	echo = oth.sendReceive(OpenThermHat.RPi_ECHO_UART_ADDRESS,0,4,5)
-	#if echo[]
+	print(echo)
 	if (echo>>16)&0xFFFF!=0x0504:
 		oth.resetMCU()
 		print("RESET MCU")
 
-	time.sleep(1)
-	
-
+	time.sleep(1)'''
+	if not oth.isEnabled():
+		oth.resetMCU()
+		print("RESET MCU")
+		if not oth.isEnabled():
+			print("MCU not working;terminat; send sms about it")
+			break
 	oth.getOTStatus()
 	print("")
 	print("#otStatus=\t"+str(oth.otStatus))

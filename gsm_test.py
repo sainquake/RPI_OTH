@@ -4,8 +4,12 @@ from OpenThermHat import GSM
 gsm = GSM()
 
 try:
-	req = gsm.sendReceive("AT\r\n")
-	print("module enabled "+str(gsm.OK))
+	if not gsm.isEnabled():
+		print("need to reset")
+		print("GSM not working;terminate")
+		break
+	else:
+		print("module enabled "+str(True))
 	
 	print("last sms:"+gsm.readLastSMS() )
 	print(gsm.getUnicNumber() )

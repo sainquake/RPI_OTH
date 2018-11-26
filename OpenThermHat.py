@@ -100,6 +100,9 @@ class GSM:
 			if str(member,'ascii').find(s)>=0:
 				OK=True
 		return OK
+	def isEnabled(self):
+		req = self.sendReceive("AT\r\n")
+		return self.OK
 	def close(self):
 		self.ser.close()
 		
@@ -232,6 +235,9 @@ class OpenThermHat:
 		else:
 			GPIO.setup(self.nRST, GPIO.OUT)
 			GPIO.output(self.nRST, b)
+	def isEnabled(self):
+		echo = self.sendReceive(self.RPi_ECHO_UART_ADDRESS,0,4,5)
+		return (echo>>16)&0xFFFF is 0x0504
 	def resetMCU(self):
 		self.reset(False)
 		time.sleep(1)
@@ -326,11 +332,14 @@ class OpenThermHat:
 			return None
 		return (d>>16)&0xFFFF
 	def setTemp(self,temp):
-		d = self.getBoilerReg((1<<7) +1,temp*256)/256.0
+		out = self.OT(1,1,temp*256)
+		if out.id!=1:
+			return False
+		'''d = self.getBoilerReg((1<<7) +1,temp*256)/256.0
 		if self.addressMatchError>0:
 			self.addressMatchError=0
-			return None
-		return d
+			return None'''
+		return out.value/256.0
 	def setTempCH2(self,temp):
 		d = self.getBoilerReg((1<<7) +8,temp*256)/256.0
 		if self.addressMatchError>0:
