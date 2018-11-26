@@ -53,6 +53,10 @@ class GSM:
 		except Exception:
 			req = sms[1]
 		return float(re.findall("\d+\.\d+", req)[0])
+	def getOperator(self):
+		req = self.sendReceive("AT+CSPN?\r\n")
+		op = str(req[1],'ascii').split('"')[1]
+		return str(op)
 	def sendSMS(self,phone_number,message):
 		req = self.sendReceive("AT+CMGF=1\r\n")
 		if self.OK:
@@ -87,7 +91,7 @@ class GSM:
 		gsm.sendReceive('AT+HTTPTERM\r\n')
 		return self.OK
 	def getSignalQuality(self):
-		req = gsm.sendReceive("AT+CSQ\r\n")
+		req = self.sendReceive("AT+CSQ\r\n")
 		signal = int(str(req[1],"ascii").split(" ")[1].split(",")[0])
 		return signal
 	def checkOK(self,req,s="OK"):

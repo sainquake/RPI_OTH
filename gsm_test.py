@@ -13,7 +13,10 @@ try:
 	
 	print("signal quality"+ str(gsm.getSignalQuality()))
 	
+	print("operator "+gsm.getOperator())
 	#gsm.deleteAllSMS()
+	
+	
 	
 except KeyboardInterrupt:
 	print( '! ^C received, shutting down')
