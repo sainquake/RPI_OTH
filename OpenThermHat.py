@@ -26,13 +26,22 @@ class GSM:
 		return result
 	def getSMSCount(self):
 		req = self.sendReceive("AT+CPMS?\r\n")
+		if not self.OK:
+			print(req)
+			return False
 		return int(str(req[1],'ascii').split(',')[1])
 	def readSMS(self,num):
 		req = self.sendReceive("AT+CMGR="+str(num)+"\r\n")
+		if not self.OK:
+			print(req)
+			return False
 		return str(req[2],'ascii')
 	def readLastSMS(self):
 		lastSMSNumber = str(self.getSMSCount())
-		req = self.sendReceive("AT+CMGR="+lastSMSNumber+"\r\n")
+		req = self.readSMS(lastSMSNumber)#sendReceive("AT+CMGR="+lastSMSNumber+"\r\n")
+		if not self.OK:
+			print(req)
+			return False
 		return str(req[2],'ascii')
 	def deleteAllSMS(self):
 		return self.sendReceive("AT+CMGDA=\"DEL ALL\"\r\n")
@@ -55,6 +64,9 @@ class GSM:
 		return float(re.findall("\d+\.\d+", req)[0])
 	def getOperator(self):
 		req = self.sendReceive("AT+CSPN?\r\n")
+		if not self.OK:
+			print(req)
+			return str(False)
 		op = str(req[1],'ascii').split('"')[1]
 		return str(op)
 	def sendSMS(self,phone_number,message):
@@ -103,6 +115,15 @@ class GSM:
 	def isEnabled(self):
 		req = self.sendReceive("AT\r\n")
 		return self.OK
+	def getFun(self):
+		req = self.sendReceive("AT+CFUN?\r\n")
+		#signal = int(str(req[1],"ascii").split(" ")[1].split(",")[0])
+		return req
+	def getCPIN(self):
+		req = self.sendReceive("AT+CPIN?\r\n")
+		#signal = int(str(req[1],"ascii").split(" ")[1].split(",")[0])
+		return req
+	
 	def close(self):
 		self.ser.close()
 		
@@ -114,6 +135,7 @@ class OTResp:
 		self.timeout = timeout_
 		self.complete = complete_
 		self.whileBreak = whileBreak_
+
 class OTData:
 	def __init__(self,otStatus,boilerStatus,boilerConfig,errorFlags):
 		self.otTimeout = otStatus&1
@@ -149,6 +171,9 @@ class OTData:
 		self.errorGasFlameFault = (errorFlags>>11)&1
 		self.errorAirPressureFault = (errorFlags>>12)&1
 		self.errorWaterOverTemperature = (errorFlags>>13)&1
+	def printClass(self):
+		attrs = self.__dict__
+		print (', ' '\n'.join("%s: %s" % item for item in attrs.items()) )
 class OpenThermHat:
 	RPI_BUFFER_SIZE=5
 	RPi_ECHO_UART_ADDRESS=1
@@ -237,7 +262,7 @@ class OpenThermHat:
 			GPIO.output(self.nRST, b)
 	def isEnabled(self):
 		echo = self.sendReceive(self.RPi_ECHO_UART_ADDRESS,0,4,5)
-		return (echo>>16)&0xFFFF is 0x0504
+		return (echo>>16)&0xFFFF == 0x0504
 	def resetMCU(self):
 		self.reset(False)
 		time.sleep(1)
@@ -302,7 +327,11 @@ class OpenThermHat:
 		while not self.otData.otSpecialRequestComplete and not self.otData.otTimeout:
 			self.otStatus = self.getOpenTermStatus(6)
 			self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
-			time.sleep(0.3)		
+			time.sleep(0.3)
+		if not self.otData.otSpecialRequestComplete:
+			print("not otSpecialRequestComplete")
+		if self.otData.otTimeout:
+			print("otTimeout")
 		tmp = self.OTResponseHeader()
 		return OTResp(tmp>>12,tmp&0xFF,self.OTResponse(),self.otData.otTimeout,self.otData.otSpecialRequestComplete,0)
 	def OTRequest(self, type_, id_,  value_):
@@ -331,39 +360,133 @@ class OpenThermHat:
 			self.addressMatchError=0
 			return None
 		return (d>>16)&0xFFFF
-	def setTemp(self,temp):
-		out = self.OT(1,1,temp*256)
-		if out.id!=1:
+	def isOTEnabled(self):
+		i=10
+		while not self.getConfiguration():
+			print("Boiler is not enabled; check powering or opentherm connection wire")
+			time.sleep(0.3)
+			if i==0:
+				return False
+			i -= 1
+		
+		return True
+	def getConfiguration(self):
+		out = self.OT(0,3,0)
+		
+		if (out.type != 4) or (out.id != 3):
 			return False
-		'''d = self.getBoilerReg((1<<7) +1,temp*256)/256.0
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None'''
+		else:
+			print("type"+str(out.type)+ " id" +str(out.id) + " value" + str(out.value))
+		return True
+	def doOTUntilIDMatch(self,type_, id_,  value_):
+		out = self.OT(type_,id_,value_)
+		i=10
+		while out.id!=id_:
+			out = self.OT(type_,id_,value_)
+			print( "not match "+str(10-i))
+			time.sleep(0.1)
+			if i==0:
+				return False
+			i -= 1
+		return out	
+	def setTemp(self,temp):
+		out = self.doOTUntilIDMatch(1,1,temp*256)
+		return out.value/256.0
+	def setDHWTemp(self,temp):
+		out = self.doOTUntilIDMatch(1,56,temp*256)
+		if out.id!=56:
+			return False
+		return out.value/256.0
+	#sensors
+	def getRelativeModulationLevel(self):
+		out = self.doOTUntilIDMatch(0,17,0)
+		return out.value/256.0
+	def getCHWaterPressure(self):
+		out = self.doOTUntilIDMatch(0,18,0)
+		return out.value/256.0
+	def getDHWFlowRate(self):
+		out = self.doOTUntilIDMatch(0,19,0)
+		return out.value/256.0
+	def getBoilerWaterTemp(self):
+		out = self.doOTUntilIDMatch(0,25,0)
+		return out.value/256.0
+	def getDHWTemp(self):
+		out = self.doOTUntilIDMatch(0,26,0)
+		return out.value/256.0
+	def getOutsideTemp(self):
+		out = self.doOTUntilIDMatch(0,27,0)
+		return out.value/256.0
+	def getReturnTemp(self):
+		out = self.doOTUntilIDMatch(0,28,0)
+		return out.value/256.0
+	def getSolarStorageTemp(self):
+		out = self.doOTUntilIDMatch(0,29,0)
+		return out.value/256.0
+	def getSolarCollectorTemp(self):
+		out = self.doOTUntilIDMatch(0,30,0)
+		return out.value
+	def getFlowTempCH2(self):
+		out = self.doOTUntilIDMatch(0,31,0)
+		return out.value/256.0
+	def getDHW2Temp(self):
+		out = self.doOTUntilIDMatch(0,32,0)
+		return out.value/256.0
+	def getExhaustTemp(self):
+		out = self.doOTUntilIDMatch(0,33,0)
+		return out.value
+	def getBurnerStarts(self):
+		out = self.doOTUntilIDMatch(0,116,0)
+		return out.value
+	def getCHPumpStarts(self):
+		out = self.doOTUntilIDMatch(0,117,0)
+		return out.value
+	def getDHWPumpStarts(self):
+		out = self.doOTUntilIDMatch(0,118,0)
+		return out.value
+	def getDHWBurnerStarts(self):
+		out = self.doOTUntilIDMatch(0,119,0)
+		return out.value
+	def getBurnerOperationHours(self):
+		out = self.doOTUntilIDMatch(0,120,0)
+		return out.value
+	def getCHPumpOperationHours(self):
+		out = self.doOTUntilIDMatch(0,121,0)
+		return out.value
+	def getDHWPumpOperationHours(self):
+		out = self.doOTUntilIDMatch(0,122,0)
+		return out.value
+	def getDHWBurnerOperationHours(self):
+		out = self.doOTUntilIDMatch(0,123,0)
+		return out.value
+	#end sensors
+	def setGetMAXTemp(self,temp=0):
+		if temp==0:
+			out = self.doOTUntilIDMatch(0,57,0)
+		else:
+			out = self.doOTUntilIDMatch(1,57,temp*256)
+		if out.id!=57:
+			return False
 		return out.value/256.0
 	def setTempCH2(self,temp):
-		d = self.getBoilerReg((1<<7) +8,temp*256)/256.0
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None
-		return d
+		out = self.OT(1,8,temp*256)
+		if out.id!=1:
+			return False
+		return out.value/256.0
 	def setRoomTargetTemp(self,temp):
-		d = self.getBoilerReg((1<<7) +16,temp*256)/256.0
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None
-		return d
+		out = self.OT(1,16,temp*256)
+		if out.id!=1:
+			return False
+		return out.value/256.0
 	def setRoomTargetTempCH2(self,temp):
-		d = self.getBoilerReg((1<<7) +23,temp*256)/256.0
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None
-		return d
+		out = self.OT(1,23,temp*256)
+		if out.id!=1:
+			return False
+		return out.value/256.0
 	def setRoomTemp(self,temp):
-		d = self.getBoilerReg((1<<7) +24,temp*256)/256.0
-		if self.addressMatchError>0:
-			self.addressMatchError=0
-			return None
-		return d
+		out = self.OT(1,24,temp*256)
+		if out.id!=1:
+			return False
+		return out.value/256.0
 	def getTemp(self):
 		d = self.sendReceive(self.RPi_GET_HW_TEMP_UART_ADDRESS,0,0,0)
 		if self.addressMatchError>0:
@@ -375,21 +498,21 @@ class OpenThermHat:
 		#self.boilerStatus = self.getBoilerReg(0)
 		#self.boilerConfig = self.getBoilerReg(3)
 		#self.errorFlags = self.getBoilerReg(5)
-		out = self.OT(0,0,0)
-		if out.type is 4:
-			self.boilerStatus = out.value
-			print("accepted")
+		out = self.doOTUntilIDMatch(0,0,0)
+		#if out.type is 4:
+		self.boilerStatus = out.value
+		#print("accepted")
 		time.sleep(0.1)
 		
-		out = self.OT(0,3,0)
-		if out.type is 4:
-			print("accepted")
-			self.boilerConfig = out.value
+		out = self.doOTUntilIDMatch(0,3,0)
+		#if out.type is 4:
+			#print("accepted")
+		self.boilerConfig = out.value
 		time.sleep(0.1)
-		out = self.OT(0,5,0)
-		if out.type is 4:
-			print("accepted")
-			self.errorFlags = out.value
+		out = self.doOTUntilIDMatch(0,5,0)
+		#if out.type is 4:
+		#	print("accepted")
+		self.errorFlags = out.value
 		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
 		return	self.otData
 	def getADC(self,ch):

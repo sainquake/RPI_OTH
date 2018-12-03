@@ -7,15 +7,16 @@ try:
 	if not gsm.isEnabled():
 		print("need to reset")
 		print("GSM not working;terminate")
-		break
 	else:
 		print("module enabled "+str(True))
 	
-	print("last sms:"+gsm.readLastSMS() )
+	print("fun:"+str(gsm.getFun()) )
+	print("getCPIN:"+str(gsm.getCPIN()) )
+	print("last sms:"+str(gsm.readLastSMS()) )
 	print(gsm.getUnicNumber() )
 	print("charge "+str(gsm.getBatteryCharge())+"%" )
-	
-	print("signal quality"+ str(gsm.getSignalQuality()))
+	print("charge "+str(gsm.getBatteryVoltage())+"V" )
+	print("signal quality "+ str(gsm.getSignalQuality())+"/31")
 	
 	print("operator "+gsm.getOperator())
 	#gsm.deleteAllSMS()

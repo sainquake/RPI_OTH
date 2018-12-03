@@ -18,8 +18,9 @@ while True:
 	if not oth.isEnabled():
 		oth.resetMCU()
 		print("RESET MCU")
+		time.sleep(5)
 		if not oth.isEnabled():
-			print("MCU not working;terminat; send sms about it")
+			print("MCU not working;terminatу; send sms about it")
 			break
 	oth.getOTStatus()
 	print("")
@@ -97,7 +98,6 @@ while True:
 #       while not( (oth.getOpenTermStatus(6)>>6)&1 ):
 #               time.sleep(0.5)
 #       print("Boiler ID24=\t"+str(oth.getBoilerReg((1<<7) +24,22*256)/256.0)+"\t Room temperature")
-
 	out = oth.OT(0,0,0)
 	print("ot.timeout=\t"+str(out.timeout))
 	print("ot.specialRequestComplete=\t"+str(out.complete))
@@ -134,7 +134,7 @@ while True:
 	print("\n\n=======================\n\n")
 	time.sleep(1)
 	
-	out = oth.OT(1,1,40*256)
+	out = oth.OT(1,1,30*256)
 	print("ot.timeout=\t"+str(out.timeout))
 	print("ot.specialRequestComplete=\t"+str(out.complete))
 	print("OTResponseHeader TYPE:"+ str(out.type) +" ID:"+ str(out.id))
