@@ -7,11 +7,23 @@ try:
 	if not gsm.isEnabled():
 		print("need to reset")
 		print("GSM not working;terminate")
+		quit()
 	else:
 		print("module enabled "+str(True))
+	if not gsm.isSIMInserted():
+		print("sim is not inserted; reset")
+		gsm.softwareReset()
+		if not gsm.isSIMInserted():
+			print("sim is not inserted; terminate")
+			quit()
+	#print("reset:"+str(gsm.softwareReset()) )
+	print("fun:"+str(gsm.getPhoneFunctionality()) )
 	
-	print("fun:"+str(gsm.getFun()) )
-	print("getCPIN:"+str(gsm.getCPIN()) )
+	print("isSIMInserted:"+str(gsm.isSIMInserted()) )
+	print("getCOPS:"+str(gsm.getCOPS()) )
+	print("getPhoneActivityStatus:"+str(gsm.getPhoneActivityStatus()) )
+	
+	
 	print("last sms:"+str(gsm.readLastSMS()) )
 	print(gsm.getUnicNumber() )
 	print("charge "+str(gsm.getBatteryCharge())+"%" )
@@ -20,7 +32,7 @@ try:
 	
 	print("operator "+gsm.getOperator())
 	#gsm.deleteAllSMS()
-	
+	quit()
 	
 	
 except KeyboardInterrupt:

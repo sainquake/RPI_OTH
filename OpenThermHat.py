@@ -42,7 +42,12 @@ class GSM:
 		if not self.OK:
 			print(req)
 			return False
-		return str(req[2],'ascii')
+		try:
+			req = binascii.unhexlify(req).decode('utf-16-be')
+		except Exception:
+			req = req
+		print(req)
+		return str(req)
 	def deleteAllSMS(self):
 		return self.sendReceive("AT+CMGDA=\"DEL ALL\"\r\n")
 	def getUnicNumber(self):
@@ -115,15 +120,34 @@ class GSM:
 	def isEnabled(self):
 		req = self.sendReceive("AT\r\n")
 		return self.OK
-	def getFun(self):
+	def getPhoneFunctionality(self):
 		req = self.sendReceive("AT+CFUN?\r\n")
-		#signal = int(str(req[1],"ascii").split(" ")[1].split(",")[0])
-		return req
-	def getCPIN(self):
+		num = int(  re.findall("\d+", str(req[1],"ascii"))[0] )
+		return num
+	def isSIMInserted(self,b=True):
+		req = self.sendReceive("AT+CMEE=2\r\n")
+		#print(req)
 		req = self.sendReceive("AT+CPIN?\r\n")
+		if b:
+			return False if self.checkOK(req,"SIM not inserted") else True
+		else:
+			return "SIM not inserted" if self.checkOK(req,"SIM not inserted") else req
+		#signal = int(str(req[1],"ascii").split(" ")[1].split(",")[0])
+		#return req
+	def softwareReset(self):
+		req = self.sendReceive("AT+CFUN=1,1\r\n",15)
+		return req	
+	def getCOPS(self):
+		req = self.sendReceive("AT+COPS?\r\n")
 		#signal = int(str(req[1],"ascii").split(" ")[1].split(",")[0])
 		return req
-	
+	def getPhoneActivityStatus(self,numerical=False):
+		req = self.sendReceive("AT+CPAS\r\n")
+		num = int(  re.findall("\d+", str(req[1],"ascii"))[0] )
+		if numerical:
+			return num
+		else:
+			return "Ready" if num is 0 else "Unknown" if num is 2 else "Ringing" if num is 3 else "Call in progress" if num is 4 else None
 	def close(self):
 		self.ser.close()
 		
