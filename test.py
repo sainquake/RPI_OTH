@@ -10,46 +10,60 @@ oth = OpenThermHat()
 lastSMSNum = 1
 boilerSwitchedOff = 1
 gsmModuleOff = 1
-
-while True:
-	if not oth.isEnabled():
-		oth.resetMCU()
-		print("RESET MCU")
-		time.sleep(1)
+try:
+	while True:
 		if not oth.isEnabled():
-			print("MCU not working;terminatу; send sms about it")
-			break	
-	print("(DS18B20) indorTemp=\t"+str(oth.getTemp()))
-	print("(Vin) Ubat Voltage=\t"+str(oth.getADC(7)))
-	print("(RPi_3V3) 3v3 Voltage=\t"+str(oth.getADC(5)))
-	print("(4v) GSM Voltage=\t"+str(oth.getADC(4)))
-	print("(5v) USB Voltage=\t"+str(oth.getADC(6)))
-	if not oth.isOTEnabled():
-		print("Boiler is not enabled; check powering or opentherm connection wire")
-		#time.sleep(0.3)
-		break
+			oth.resetMCU()
+			print("RESET MCU")
+			time.sleep(1)
+			if not oth.isEnabled():
+				print("MCU not working;terminatу; send sms about it")
+				break	
+		print("(DS18B20) indorTemp=\t"+str(oth.getTemp()))
+		print("(Vin) Ubat Voltage=\t"+str(oth.getADC(7)))
+		print("(RPi_3V3) 3v3 Voltage=\t"+str(oth.getADC(5)))
+		print("(4v) GSM Voltage=\t"+str(oth.getADC(4)))
+		print("(5v) USB Voltage=\t"+str(oth.getADC(6)))
+		if not oth.isOTEnabled():
+			print("Boiler is not enabled; check powering or opentherm connection wire")
+			#time.sleep(0.3)
+			break
+			
+		oth.getOTStatus()
+		#oth.otData.printClass()
 		
-	oth.getOTStatus()
-	oth.otData.printClass()
-	
-	print( "============================" )
-	print( "CH mode" if oth.otData.boilerCHMode else None )
-	print( "DHW mode" if oth.otData.boilerDHWMode else None )
-	print( "Flame ON" if oth.otData.boilerFlameStatus else "Flame OFF" )
-	print( "!!!Fault!!!" if oth.otData.boilerFault else None )
-	print( "============================" )
-	
-	print("set temperature=\t"+str(oth.setTemp(52)))
-	print("set DHW temperature=\t"+str(oth.setDHWTemp(40)))
-	print("set MAX temperature=\t"+str(oth.setGetMAXTemp(70)))
-	print("get MAX temperature=\t"+str(oth.setGetMAXTemp()))
-	
-	print("set setRoomTargetTemp=\t"+str(oth.setRoomTargetTemp(30)))
-	print("set setRoomTemp=\t"+str(oth.setRoomTemp(30)))
-	
-	
-	break
-
+		print( "============================" )
+		print( "CH mode" if oth.otData.boilerCHMode else None )
+		print( "DHW mode" if oth.otData.boilerDHWMode else None )
+		print( "Flame ON" if oth.otData.boilerFlameStatus else "Flame OFF" )
+		print( "!!!Fault!!!" if oth.otData.boilerFault else None )
+		if oth.otData.boilerFault:
+			print( oth.otData.errorOEM if oth.otData.errorOEM else None ) 
+			print( "errorServiceRequered" if oth.otData.errorServiceRequered else None ) 
+			print( "errorLockoutReset" if oth.otData.boilerFault else None )
+			print( "errorLowWaterPress" if oth.otData.boilerFault else None )
+			print( "errorGasFlameFault" if oth.otData.boilerFault else None )
+			print( "errorAirPressureFault" if oth.otData.boilerFault else None )
+			print( "errorWaterOverTemperature" if oth.otData.boilerFault else None )
+		print( "============================" )
+		
+		print("set temperature=\t"+str(oth.setTemp(60)))
+		print("set DHW temperature=\t"+str(oth.setDHWTemp(40)))
+		print("get DHW temperature=\t"+str(oth.getDHWTemp()))
+		
+		#print("set MAX temperature=\t"+str(oth.setGetMAXTemp(70)))
+		print("get MAX temperature=\t"+str(oth.setGetMAXTemp()))
+		print("return temp=\t"+str(oth.getReturnTemp()))
+		print("getCHWaterPressure=\t"+str(oth.getCHWaterPressure()))
+		print("getDHWFlowRate=\t"+str(oth.getDHWFlowRate()))
+		#print("set setRoomTargetTemp=\t"+str(oth.setRoomTargetTemp(30)))
+		#print("set setRoomTemp=\t"+str(oth.setRoomTemp(30)))
+		print("set getRelativeModulationLevel=\t"+str(oth.getRelativeModulationLevel()))
+		
+		break
+except KeyboardInterrupt:
+	print( '! ^C received, shutting down')
+	gsm.close()
 time.sleep(500)
 
 

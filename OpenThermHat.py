@@ -152,14 +152,14 @@ class GSM:
 		self.ser.close()
 		
 class OTResp:
-	def __init__(self,type_,id_,value_,timeout_,complete_,whileBreak_):
+	def __init__(self,type_=0,id_=-1,value_=0,timeout_=0,complete_=0,whileBreak_=0):
 		self.type = type_
 		self.id = id_
 		self.value = value_
 		self.timeout = timeout_
 		self.complete = complete_
 		self.whileBreak = whileBreak_
-
+		self.error = 0
 class OTData:
 	def __init__(self,otStatus,boilerStatus,boilerConfig,errorFlags):
 		self.otTimeout = otStatus&1
@@ -352,10 +352,10 @@ class OpenThermHat:
 			self.otStatus = self.getOpenTermStatus(6)
 			self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
 			time.sleep(0.3)
-		if not self.otData.otSpecialRequestComplete:
-			print("not otSpecialRequestComplete")
-		if self.otData.otTimeout:
-			print("otTimeout")
+		#if not self.otData.otSpecialRequestComplete:
+		#	print("not otSpecialRequestComplete")
+		#if self.otData.otTimeout:
+		#	print("otTimeout")
 		tmp = self.OTResponseHeader()
 		return OTResp(tmp>>12,tmp&0xFF,self.OTResponse(),self.otData.otTimeout,self.otData.otSpecialRequestComplete,0)
 	def OTRequest(self, type_, id_,  value_):
@@ -407,12 +407,23 @@ class OpenThermHat:
 		i=10
 		while out.id!=id_:
 			out = self.OT(type_,id_,value_)
-			print( "not match "+str(10-i))
+			#print( "not match "+str(10-i))
 			time.sleep(0.1)
 			if i==0:
-				return False
+				out.error = 1
+				return out
 			i -= 1
-		return out	
+		return out
+	def setOTStatus(self,i=0):
+		#self.otStatus = self.getOpenTermStatus(6)
+		#self.boilerStatus = self.getBoilerReg(0)
+		#self.boilerConfig = self.getBoilerReg(3)
+		#self.errorFlags = self.getBoilerReg(5)
+		out = self.doOTUntilIDMatch(0,0,i<<8)
+		#if out.type is 4:
+		self.boilerStatus = out.value
+		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
+		return	self.otData		
 	def setTemp(self,temp):
 		out = self.doOTUntilIDMatch(1,1,temp*256)
 		return out.value/256.0
@@ -494,22 +505,26 @@ class OpenThermHat:
 	def setTempCH2(self,temp):
 		out = self.OT(1,8,temp*256)
 		if out.id!=1:
-			return False
+			out.error = 1
+			return out
 		return out.value/256.0
 	def setRoomTargetTemp(self,temp):
 		out = self.OT(1,16,temp*256)
 		if out.id!=1:
-			return False
+			out.error = 1
+			return out
 		return out.value/256.0
 	def setRoomTargetTempCH2(self,temp):
 		out = self.OT(1,23,temp*256)
 		if out.id!=1:
-			return False
+			out.error = 1
+			return out
 		return out.value/256.0
 	def setRoomTemp(self,temp):
 		out = self.OT(1,24,temp*256)
 		if out.id!=1:
-			return False
+			out.error = 1
+			return out
 		return out.value/256.0
 	def getTemp(self):
 		d = self.sendReceive(self.RPi_GET_HW_TEMP_UART_ADDRESS,0,0,0)
@@ -522,7 +537,7 @@ class OpenThermHat:
 		#self.boilerStatus = self.getBoilerReg(0)
 		#self.boilerConfig = self.getBoilerReg(3)
 		#self.errorFlags = self.getBoilerReg(5)
-		out = self.doOTUntilIDMatch(0,0,0)
+		out = self.doOTUntilIDMatch(0,0,2<<8)
 		#if out.type is 4:
 		self.boilerStatus = out.value
 		#print("accepted")
