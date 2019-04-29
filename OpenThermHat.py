@@ -7,8 +7,60 @@ import time
 import binascii
 import re
 
+import board
+import neopixel
+
+import math 
+
 print("OTH")
 
+class WS281X:
+	def __init__(self):
+		self.pixels = neopixel.NeoPixel(board.D12, 12, brightness=0.2, auto_write=False,pixel_order=neopixel.GRB)
+	def wheel(self,pos):
+		# Input a value 0 to 255 to get a color value.
+		# The colours are a transition r - g - b - back to r.
+		if pos < 0 or pos > 255:
+			r = g = b = 0
+		elif pos < 85:
+			r = int(pos * 3)
+			g = int(255 - pos*3)
+			b = 0
+		elif pos < 170:
+			pos -= 85
+			r = int(255 - pos*3)
+			g = 0
+			b = int(pos*3)
+		else:
+			pos -= 170
+			r = 0
+			g = int(pos*3)
+			b = int(255 - pos*3)
+		return (r, g, b)
+	def rainbow_cycle(self,wait):
+		for j in range(255):
+			for i in range(12):
+				pixel_index = (i * 256 // 12) + j
+				self.pixels[i] = self.wheel(pixel_index & 255)
+			self.pixels.show()
+			time.sleep(wait)
+	def fill(self,col):
+		self.pixels.fill(col)
+		self.pixels.show()
+	def set(self,num,col):
+		self.pixels[num] = col
+		self.pixels.show()
+	def percent(self,p):
+		#for j in range(255):
+		for i in range(12):
+			if i<p*11:
+				self.pixels[i] = (255,255,255)
+			else:
+				self.pixels[i] = (0,0,0)
+			if i==math.floor(p*11):
+				n = math.floor((i-math.floor(p*11))*255)
+				self.pixels[i] = (n,n,n)
+		self.pixels.show()	
 class GSM:
 	def __init__(self):
 		print("init /dev/ttyUSB0")
@@ -16,6 +68,23 @@ class GSM:
 		self.ser.baudrate = 9600
 		self.ser.timeout = 2
 		self.OK = False
+		#
+		self.SIMInserted = False
+		self.unicNumber = 0
+		self.batteryCharge = 0
+		self.batteryVoltage = 0
+		self.signalQuality = 0
+		self.operator = ""
+		#
+		self.balance = 0
+		self.balanceRequered = False
+		#
+		self.smsRequered = False
+		self.smsNumber = "+79063280423"
+		self.smsMessage = "test from OTH"
+		self.smsSent = False
+		#
+		self.lastSMS = ""
 	def sendReceive(self, data,delay=0):
 		self.OK = False
 		self.ser.write(data.encode())
@@ -46,47 +115,69 @@ class GSM:
 			req = binascii.unhexlify(req).decode('utf-16-be')
 		except Exception:
 			req = req
-		print(req)
+		#print(req)
+		self.lastSMS = str(req)
 		return str(req)
 	def deleteAllSMS(self):
 		return self.sendReceive("AT+CMGDA=\"DEL ALL\"\r\n")
 	def getUnicNumber(self):
 		req = self.sendReceive("AT+GSN\r\n")
+		self.unicNumber = str(req[1],'ascii')
 		return str(req[1],'ascii')
 	def getBatteryCharge(self):
 		req = self.sendReceive("AT+CBC\r\n")
+		self.batteryCharge = int(str(req[1],'ascii').split(',')[1])
 		return int(str(req[1],'ascii').split(',')[1])
 	def getBatteryVoltage(self):
 		req = self.sendReceive("AT+CBC\r\n")
+		self.batteryVoltage = float(str(req[1],'ascii').split(',')[2])/1000
 		return float(str(req[1],'ascii').split(',')[2])/1000
 	def getBalance(self):
-		req = self.sendReceive("AT+CUSD=1,\"#105#\"\r\n",20)
-		sms = str(req[3],'ascii').split('"')
-		try:
-			req = binascii.unhexlify(sms[1]).decode('utf-16-be')
-		except Exception:
-			req = sms[1]
-		return float(re.findall("\d+\.\d+", req)[0])
+		if not self.balanceRequered:
+			self.balanceRequered=True
+			req = self.sendReceive("AT+CUSD=1,\"#105#\"\r\n",20)
+			sms = str(req[3],'ascii').split('"')
+			try:
+				req = binascii.unhexlify(sms[1]).decode('utf-16-be')
+			except Exception:
+				req = sms[1]
+			self.balance = float(re.findall("\d+\.\d+", req)[0])
+			self.balanceRequered=False
+			return float(re.findall("\d+\.\d+", req)[0])
+		else: 
+			return self.balance
 	def getOperator(self):
 		req = self.sendReceive("AT+CSPN?\r\n")
 		if not self.OK:
 			print(req)
 			return str(False)
 		op = str(req[1],'ascii').split('"')[1]
+		self.operator = str(op)
 		return str(op)
-	def sendSMS(self,phone_number,message):
-		req = self.sendReceive("AT+CMGF=1\r\n")
-		if self.OK:
-			req = self.sendReceive("AT+CMGS=\""+phone_number+"\"\r\n")
-			if self.checkOK(req,">"):
-				time.sleep(1)
-				self.sendReceive(message)
-				time.sleep(0.1)
-				self.sendReceive("\x1a")
-				self.sendReceive("AT\r\n")
-				return self.OK
+	def sendSMS(self,phone_number = " ",message = " "):
+		if not self.smsRequered:
+			self.smsRequered = True
+			if phone_number!=" ":
+				self.smsNumber = phone_number
+			if message!=" ":
+				self.smsMessage = message
+			req = self.sendReceive("AT+CMGF=1\r\n")
+			if self.OK:
+				req = self.sendReceive("AT+CMGS=\""+self.smsNumber+"\"\r\n")
+				if self.checkOK(req,">"):
+					time.sleep(1)
+					self.sendReceive(self.smsMessage)
+					time.sleep(0.1)
+					self.sendReceive("\x1a")
+					self.sendReceive("AT\r\n")
+					self.smsSent = True
+					return self.OK
+				else:
+					return False
 			else:
+				self.smsSent = false
 				return False
+			self.smsRequered = False
 		else:
 			return False
 	def initHTTP(self,apn="ainternet.tele2.ru",user="tele2",pwd="tele2"):
@@ -110,6 +201,7 @@ class GSM:
 	def getSignalQuality(self):
 		req = self.sendReceive("AT+CSQ\r\n")
 		signal = int(str(req[1],"ascii").split(" ")[1].split(",")[0])
+		self.signalQuality = signal*100/31
 		return signal
 	def checkOK(self,req,s="OK"):
 		OK=False
@@ -128,6 +220,7 @@ class GSM:
 		req = self.sendReceive("AT+CMEE=2\r\n")
 		#print(req)
 		req = self.sendReceive("AT+CPIN?\r\n")
+		self.SIMInserted = False if self.checkOK(req,"SIM not inserted") else True
 		if b:
 			return False if self.checkOK(req,"SIM not inserted") else True
 		else:
@@ -387,7 +480,7 @@ class OpenThermHat:
 	def isOTEnabled(self):
 		i=10
 		while not self.getConfiguration():
-			print("Boiler is not enabled; check powering or opentherm connection wire")
+			#print("Boiler is not enabled; check powering or opentherm connection wire")
 			time.sleep(0.3)
 			if i==0:
 				return False
@@ -407,9 +500,10 @@ class OpenThermHat:
 		i=10
 		while out.id!=id_:
 			out = self.OT(type_,id_,value_)
-			#print( "not match "+str(10-i))
+			print( "not match "+str(10-i))
 			time.sleep(0.1)
 			if i==0:
+				print("error 123")
 				out.error = 1
 				return out
 			i -= 1
@@ -423,7 +517,8 @@ class OpenThermHat:
 		#if out.type is 4:
 		self.boilerStatus = out.value
 		self.otData = OTData(self.otStatus,self.boilerStatus,self.boilerConfig,self.errorFlags)
-		return	self.otData		
+		print(out.error)
+		return	out		
 	def setTemp(self,temp):
 		out = self.doOTUntilIDMatch(1,1,temp*256)
 		return out.value/256.0

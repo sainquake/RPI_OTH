@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
-
+#import requesocks
 import requests  
 import datetime
 
@@ -16,7 +16,11 @@ proxies = {
 }
 
 url = 'http://httpbin.org/ip'
-print(requests.get(url, proxies=proxies).text)
+
+response = requests.get(url, proxies=proxies)
+
+print(response.text)
+
 
 #print(requests.get(url, proxies=proxies).text)
 

@@ -32,6 +32,10 @@ try:
 	
 	print("operator "+gsm.getOperator())
 	#gsm.deleteAllSMS()
+	
+	#print("balace "+str(gsm.getBalance()))
+	#gsm.smsMessage = "test test"
+	#gsm.sendSMS()
 	quit()
 	
 	
